@@ -100,14 +100,23 @@ export class Application {
     }
 
     drawLine(p0: Vec2, p1: Vec2, color: IVec3) {
-        // Slope = change in y / change in x
+        // Slope(m) = change in y / change in x
         // Line Eq: y = mx + b
         const m = (p1.y - p0.y) / (p1.x - p0.x)
         const b = p0.y - m * p0.x
 
-        for (let x = p0.x; x < p1.x; ++x) {
-            const y = m * x + b
+        // Optimization 1
+        // Since the slope is one factor that is changing from y0 to y1
+        // We can calculate the initial y0 and add slope to it to get the next y
+
+        let y = m * p0.x + b
+
+        // Note: Must iterate until p1.x inclusive
+        for (let x = p0.x + 1; x <= p1.x; ++x) {
+            // const y = m * x + b
             this.#putPixel(x, y, color)
+            y += m
+            // y = y + b
         }
 
     }
