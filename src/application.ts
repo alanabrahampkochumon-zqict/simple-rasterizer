@@ -93,32 +93,64 @@ export class Application {
     }
 
     render() {
-
-
         this.colorUV()
         this.drawLineBox()
     }
 
-    drawLine(p0: Vec2, p1: Vec2, color: IVec3) {
+    drawLineH(p0: Vec2, p1: Vec2, color: IVec3) {
         // Slope(m) = change in y / change in x
         // Line Eq: y = mx + b
-        const m = (p1.y - p0.y) / (p1.x - p0.x)
-        const b = p0.y - m * p0.x
+
+        // If line is moving from right to left
+        // since the drawing order doesn't matter
+        // we can just swap them
+        let x0 = p0.x;
+        let x1 = p1.x;
+        // if (x0 > x1) {
+        //     let temp = x0;
+        //     x0 = x1;
+        //     x1 = temp;
+        // }
+
+        const m = (p1.y - p0.y) / (x1 - x0)
+
+        // const b = p0.y - m * x0
 
         // Optimization 1
         // Since the slope is one factor that is changing from y0 to y1
         // We can calculate the initial y0 and add slope to it to get the next y
 
-        let y = m * p0.x + b
+        let y = p0.y
+        console.log(y)
+        console.log(`x0: ${x0} --- x1 ${x1}`)
+
 
         // Note: Must iterate until p1.x inclusive
-        for (let x = p0.x + 1; x <= p1.x; ++x) {
+        for (let x = x0 + 1; x <= x1; ++x) {
             // const y = m * x + b
             this.#putPixel(x, y, color)
             y += m
+            console.log(`x: ${x}, y: ${y}`)
             // y = y + b
         }
 
+    }
+
+    drawLineV(p0: Vec2, p1: Vec2, color: IVec3) {
+        if (p0.y > p1.y) {
+            let temp = p0
+            p0 = p1
+            p1 = temp
+        }
+
+        // Slope is flipped, so m = δx/δy
+        const m = ( p1.x - p0.x ) / (p1.y - p0.y)
+        let x = p0.x
+
+        for (let y = p0.y; y < p1.y; ++y) {
+            this.#putPixel(x, y, color)
+            x += m
+        }
     }
 
 
@@ -126,7 +158,7 @@ export class Application {
         this.render()
         // this.clearScreen()
         this.updateScreen()
-        requestAnimationFrame(() => this.run())
+        // requestAnimationFrame(() => this.run())
     }
 
 
@@ -143,13 +175,31 @@ export class Application {
         const bottomRight = new Vec2(500, 500)
 
 
-        this.drawLine(new Vec2(topLeft.x, topLeft.y), new Vec2(topRight.x, topRight.y), new IVec3(255, 255, 255)) // Horizontal Line
-        this.drawLine(new Vec2(topLeft.x, topLeft.y), new Vec2(bottomLeft.x, bottomLeft.y), new IVec3(255, 255, 255)) // Can't draw vertical line since slope == 0
-        this.drawLine(new Vec2(topLeft.x, topLeft.y), new Vec2(bottomRight.x, bottomRight.y), new IVec3(255, 255, 255))// Cross
+        // Draws only horizontal lines + sloped
+        this.drawLineH(new Vec2(topLeft.x, topLeft.y), new Vec2(topRight.x, topRight.y), new IVec3(255, 255, 255)) // Horizontal Line
+        this.drawLineH(new Vec2(topLeft.x, topLeft.y), new Vec2(bottomLeft.x, bottomLeft.y), new IVec3(255, 255, 255)) // Can't draw vertical line since slope == 0
+        this.drawLineH(new Vec2(topLeft.x, topLeft.y), new Vec2(bottomRight.x, bottomRight.y), new IVec3(255, 255, 255))// Cross
 
-        this.drawLine(new Vec2(bottomLeft.x, bottomLeft.y), new Vec2(bottomRight.x, bottomRight.y), new IVec3(255, 255, 255)) // Bottom Horizontal line
-        this.drawLine(new Vec2(topRight.x, topRight.y), new Vec2(bottomRight.x, bottomRight.y), new IVec3(255, 255, 255)) // Can't draw vertical line since slope == 0
-        this.drawLine(new Vec2(bottomLeft.x, bottomLeft.y), new Vec2(topRight.x, topRight.y), new IVec3(255, 255, 255)) // Cross
+        this.drawLineH(new Vec2(bottomLeft.x, bottomLeft.y), new Vec2(bottomRight.x, bottomRight.y), new IVec3(255, 255, 255)) // Bottom Horizontal line
+        this.drawLineH(new Vec2(topRight.x, topRight.y), new Vec2(bottomRight.x, bottomRight.y), new IVec3(255, 255, 255)) // Can't draw vertical line since slope == 0
+        this.drawLineH(new Vec2(bottomLeft.x, bottomLeft.y), new Vec2(topRight.x, topRight.y), new IVec3(255, 255, 255)) // Cross
+
+        // Right to left line
+        this.drawLineH(new Vec2(800, 100), new Vec2(50, 50), new IVec3(0, 255, 255))
+
+
+        // Draws only vertical lines + sloped
+        this.drawLineV(new Vec2(topLeft.x, topLeft.y), new Vec2(topRight.x, topRight.y), new IVec3(255, 0, 255)) // Horizontal Line
+        this.drawLineV(new Vec2(topLeft.x, topLeft.y), new Vec2(bottomLeft.x, bottomLeft.y), new IVec3(255, 0, 255)) // Can't draw vertical line since slope == 0
+        this.drawLineV(new Vec2(topLeft.x, topLeft.y), new Vec2(bottomRight.x, bottomRight.y), new IVec3(255, 0, 255))// Cross
+
+        this.drawLineV(new Vec2(bottomLeft.x, bottomLeft.y), new Vec2(bottomRight.x, bottomRight.y), new IVec3(255, 0, 255)) // Bottom Horizontal line
+        this.drawLineV(new Vec2(topRight.x, topRight.y), new Vec2(bottomRight.x, bottomRight.y), new IVec3(255, 0, 255)) // Can't draw vertical line since slope == 0
+        this.drawLineV(new Vec2(bottomLeft.x, bottomLeft.y), new Vec2(topRight.x, topRight.y), new IVec3(255, 0, 255)) // Cross
+
+        // Right to left line
+        this.drawLineV(new Vec2(800, 100), new Vec2(50, 50), new IVec3(255, 0, 255))
+
     }
 
     colorUV() {
