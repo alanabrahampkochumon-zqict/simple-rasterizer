@@ -1,4 +1,5 @@
 import {IVec3} from "./math/ivec3"
+import {Vec2} from "./math/vec2.ts";
 
 export class Application {
     canvas: HTMLCanvasElement;
@@ -95,13 +96,33 @@ export class Application {
         // Test Code: Renders UV
         for (let i = 0; i < this.height; ++i)
             for (let j = 0; j < this.width; ++j)
-                this.#putPixel(j, i, new IVec3(j, i, 0))
+                this.#putPixel(j, i, new IVec3(j / this.width * 255, i / this.height * 255, 0))
+
+    }
+
+    drawLine(p0: Vec2, p1: Vec2, color: IVec3) {
+        // Slope = change in y / change in x
+        // Line Eq: y = mx + b
+        const m = (p1.y - p0.y) / (p1.x - p0.x)
+        const b = p0.y - m * p0.x
+
+        for (let x = p0.x; x < p1.x; ++x) {
+            const y = m * x + b
+            this.#putPixel(x, y, color)
+        }
 
     }
 
 
     run() {
         this.render()
+
+        this.drawLine(new Vec2(10, 10), new Vec2(100, 100), new IVec3(255, 255, 255))// Cross
+        this.drawLine(new Vec2(10, 10), new Vec2(100, 10), new IVec3(255, 255, 255)) // Horizontal Line
+        this.drawLine(new Vec2(10, 10), new Vec2(10, 100), new IVec3(255, 255, 255)) // Can't draw vertical line since slope == 0
+        this.drawLine(new Vec2(10, 100), new Vec2(100, 10), new IVec3(255, 255, 255)) // Cross
+        this.drawLine(new Vec2(10, 100), new Vec2(100, 100), new IVec3(255, 255, 255)) // Bottom Horizontal line
+        this.drawLine(new Vec2(10, 10), new Vec2(10, 100), new IVec3(255, 255, 255)) // Can't draw vertical line since slope == 0
         // this.clearScreen()
         this.updateScreen()
         requestAnimationFrame(() => this.run())
