@@ -106,10 +106,7 @@ export class Application {
         this.context.putImageData(this.targetSurface, 0, 0);
     }
 
-    render() {
-        this.colorUVTest()
-        this.drawLineTest()
-    }
+
 
     #drawLineH(p0: Vec2, p1: Vec2, color: IVec3) {
         // Slope(m) = change in y / change in x
@@ -166,8 +163,10 @@ export class Application {
      * @param p1 The second point to draw the line.
      * @param color The color to paint the line stroke.
      * @private
+     *
+     * @deprecated
      */
-    #drawLineSlow(p0: Vec2, p1: Vec2, color: IVec3) {
+    drawLineNonInterpolated(p0: Vec2, p1: Vec2, color: IVec3) {
         const deltaX = Math.abs(p1.x - p0.x)
         const deltaY = Math.abs(p1.y - p0.y)
         if (deltaX > deltaY) {
@@ -242,12 +241,29 @@ export class Application {
     }
 
 
+    drawTriangleWireframe(p0: Vec2, p1: Vec2, p2: Vec2, color: IVec3) {
+        // 0 to 1, 1 to 2, 2 to 0
+        this.drawLine(p0, p1, color)
+        this.drawLine(p1, p2, color)
+        this.drawLine(p2, p0, color)
+    }
+
+
+    render() {
+        this.colorUVTest()
+        this.drawLineTest()
+        this.drawTriWireframeTest()
+    }
+
     run() {
         this.render()
         // this.clearScreen()
         this.updateScreen()
         // requestAnimationFrame(() => this.run())
     }
+
+
+
 
 
     /**
@@ -314,7 +330,18 @@ export class Application {
         // Right to left line
         this.drawLine(new Vec2(800, 100), new Vec2(50, 50), new IVec3(255, 255, 0))
         this.drawLine(new Vec2(500, 500), new Vec2(450, 40), new IVec3(255, 255, 0))
+    }
 
+
+    drawTriWireframeTest() {
+        const verts = [
+            new Vec2(400, 50),
+            new Vec2(800, 400),
+            new Vec2(50, 400)
+        ]
+        const color = new IVec3(10, 255, 255)
+
+        this.drawTriangleWireframe(verts[0], verts[1], verts[2], color)
     }
 
     colorUVTest() {
