@@ -26,8 +26,9 @@ export class Application {
             canvas.width,
             canvas.height,
         );
-
         this.clearColor = new IVec3(0, 0, 0);
+
+        this.resize()
     }
 
     resize() {
@@ -93,11 +94,9 @@ export class Application {
 
     render() {
 
-        // Test Code: Renders UV
-        for (let i = 0; i < this.height; ++i)
-            for (let j = 0; j < this.width; ++j)
-                this.#putPixel(j, i, new IVec3(j / this.width * 255, i / this.height * 255, 0))
 
+        this.colorUV()
+        this.drawLineBox()
     }
 
     drawLine(p0: Vec2, p1: Vec2, color: IVec3) {
@@ -116,15 +115,38 @@ export class Application {
 
     run() {
         this.render()
-
-        this.drawLine(new Vec2(10, 10), new Vec2(100, 100), new IVec3(255, 255, 255))// Cross
-        this.drawLine(new Vec2(10, 10), new Vec2(100, 10), new IVec3(255, 255, 255)) // Horizontal Line
-        this.drawLine(new Vec2(10, 10), new Vec2(10, 100), new IVec3(255, 255, 255)) // Can't draw vertical line since slope == 0
-        this.drawLine(new Vec2(10, 100), new Vec2(100, 10), new IVec3(255, 255, 255)) // Cross
-        this.drawLine(new Vec2(10, 100), new Vec2(100, 100), new IVec3(255, 255, 255)) // Bottom Horizontal line
-        this.drawLine(new Vec2(10, 10), new Vec2(10, 100), new IVec3(255, 255, 255)) // Can't draw vertical line since slope == 0
         // this.clearScreen()
         this.updateScreen()
         requestAnimationFrame(() => this.run())
+    }
+
+
+    /**
+     ********************
+     *     TEST CODE
+     *********************
+     */
+
+    drawLineBox() {
+        const topLeft = new Vec2(10, 10)
+        const bottomLeft = new Vec2(10, 500)
+        const topRight = new Vec2(500, 10)
+        const bottomRight = new Vec2(500, 500)
+
+
+        this.drawLine(new Vec2(topLeft.x, topLeft.y), new Vec2(topRight.x, topRight.y), new IVec3(255, 255, 255)) // Horizontal Line
+        this.drawLine(new Vec2(topLeft.x, topLeft.y), new Vec2(bottomLeft.x, bottomLeft.y), new IVec3(255, 255, 255)) // Can't draw vertical line since slope == 0
+        this.drawLine(new Vec2(topLeft.x, topLeft.y), new Vec2(bottomRight.x, bottomRight.y), new IVec3(255, 255, 255))// Cross
+
+        this.drawLine(new Vec2(bottomLeft.x, bottomLeft.y), new Vec2(bottomRight.x, bottomRight.y), new IVec3(255, 255, 255)) // Bottom Horizontal line
+        this.drawLine(new Vec2(topRight.x, topRight.y), new Vec2(bottomRight.x, bottomRight.y), new IVec3(255, 255, 255)) // Can't draw vertical line since slope == 0
+        this.drawLine(new Vec2(bottomLeft.x, bottomLeft.y), new Vec2(topRight.x, topRight.y), new IVec3(255, 255, 255)) // Cross
+    }
+
+    colorUV() {
+        // Test Code: Renders UV
+        for (let i = 0; i < this.height; ++i)
+            for (let j = 0; j < this.width; ++j)
+                this.#putPixel(j, i, new IVec3(j / this.width * 255, i / this.height * 255, 0))
     }
 }
