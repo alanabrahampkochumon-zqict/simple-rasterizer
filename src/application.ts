@@ -90,8 +90,19 @@ export class Application {
         this.context.putImageData(this.targetSurface, 0, 0);
     }
 
+    render() {
+
+        // Test Code: Renders UV
+        for (let i = 0; i < this.height; ++i)
+            for (let j = 0; j < this.width; ++j)
+                this.#putPixel(j, i, new IVec3(j, i, 0))
+
+    }
+
+
     run() {
-        this.clearScreen()
+        this.render()
+        // this.clearScreen()
         this.updateScreen()
         requestAnimationFrame(() => this.run())
     }
