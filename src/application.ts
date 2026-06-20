@@ -107,7 +107,6 @@ export class Application {
     }
 
 
-
     #drawLineH(p0: Vec2, p1: Vec2, color: IVec3) {
         // Slope(m) = change in y / change in x
         // Line Eq: y = mx + b
@@ -184,7 +183,7 @@ export class Application {
      * @param i1 The final value for independent variable.
      * @param d1 The final value for dependent variable.
      *
-     * @return The interpolated values for the y (second term).
+     * @return The interpolated values for the dependent variable.
      */
     interpolate(i0: number, d0: number, i1: number, d1: number) {
         if (i0 == i1) {
@@ -195,7 +194,7 @@ export class Application {
         const m = (d1 - d0) / (i1 - i0)
         let y = d0
 
-        for(let x = i0; x <= i1; ++x) {
+        for (let x = i0; x <= i1; ++x) {
             interpolatedValues.push(y)
             y += m
         }
@@ -220,7 +219,7 @@ export class Application {
             }
 
             const values = this.interpolate(p0.x, p0.y, p1.x, p1.y)
-            for(let x = p0.x; x <= p1.x; ++x) {
+            for (let x = p0.x; x <= p1.x; ++x) {
                 this.#putPixel(x, values[x - p0.x], color)
             }
         } else {
@@ -234,7 +233,7 @@ export class Application {
             }
 
             const values = this.interpolate(p0.y, p0.x, p1.y, p1.x)
-            for(let y = p0.y; y <= p1.y; ++y)
+            for (let y = p0.y; y <= p1.y; ++y)
                 this.#putPixel(values[y - p0.y], y, color)
 
         }
@@ -255,7 +254,42 @@ export class Application {
         // Interpolate the vertices
         // Since we are drawing horizontal lines
         // We are taking x as the dependent variable
-        // const xAB = this.interpolate(a.x, a.)
+        const xAB = this.interpolate(a.y, a.x, b.y, b.x);
+        const xBC = this.interpolate(b.y, b.x, c.y, c.x);
+        // We need to put the smaller value, which is `a` in this case, first
+        // since the interpolation function internal iterators from `i0` to `i1`(so it must be that i0 <= i1)
+        // where `i` indicate independent
+        const xAC = this.interpolate(a.y, a.x, c.y, c.x); // Since `a` is the smallest and c is the largest y value this is our longest edge values
+
+        // Join the shorter sides
+        // But since we have one common value in both remove it from one of the interpolated arrays
+        xAB.pop()
+        const xABC = [...xAB, ...xBC]
+
+        // Find the left and right side
+        const midpointIndex = Math.round(xAC.length / 2)
+        // By comparing hte x values(interpolated values) for the middle of the sides we can determine which is the left side
+        let left, right;
+        if (xAC[midpointIndex] < xABC[midpointIndex]) {
+            // xCA is the left side
+            left = xAC
+            right = xABC
+        } else {
+            // xABC is on the left side
+            left = xABC
+            right = xAC
+        }
+
+        // Draw line for each x and y values
+        // Clarity
+        const minY = a.y
+        const maxY = c.y
+        for (let y = minY; y <= maxY; ++y) {
+            for (let x = left[y - minY]; x <= right[y - minY]; ++x) {
+                this.#putPixel(x, y, color)
+            }
+        }
+
     }
 
 
@@ -347,7 +381,8 @@ export class Application {
         ]
         const color = new IVec3(10, 255, 255)
 
-        this.drawTriangleWireframe(verts[0], verts[1], verts[2], color)
+        // this.drawTriangleWireframe(verts[0], verts[1], verts[2], color)
+        this.drawTriangle(verts[0], verts[1], verts[2], color)
     }
 
     colorUVTest() {
