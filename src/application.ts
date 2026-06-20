@@ -179,23 +179,23 @@ export class Application {
 
     /**
      * Interpolates between two values returning the interpolated values as a list.
-     * @param a0 The initial value for x.
-     * @param b0 The initial value for y.
-     * @param a1 The final value for x.
-     * @param b1 The final value for y.
+     * @param i0 The initial value for independent variable.
+     * @param d0 The initial value for dependent variable.
+     * @param i1 The final value for independent variable.
+     * @param d1 The final value for dependent variable.
      *
      * @return The interpolated values for the y (second term).
      */
-    interpolate(a0: number, b0: number, a1: number, b1: number) {
-        if (a0 == a1) {
-            return [b0]
+    interpolate(i0: number, d0: number, i1: number, d1: number) {
+        if (i0 == i1) {
+            return [d0]
         }
         const interpolatedValues = []
 
-        const m = (b1 - b0) / (a1 - a0)
-        let y = b0
+        const m = (d1 - d0) / (i1 - i0)
+        let y = d0
 
-        for(let x = a0; x <= a1; ++x) {
+        for(let x = i0; x <= i1; ++x) {
             interpolatedValues.push(y)
             y += m
         }
@@ -248,6 +248,16 @@ export class Application {
         this.drawLine(p2, p0, color)
     }
 
+    drawTriangle(p0: Vec2, p1: Vec2, p2: Vec2, color: IVec3) {
+        // Sort the vertices in the increasing order of y value
+        const [a, b, c] = [p0, p1, p2].sort((a, b) => a.y - b.y)
+
+        // Interpolate the vertices
+        // Since we are drawing horizontal lines
+        // We are taking x as the dependent variable
+        // const xAB = this.interpolate(a.x, a.)
+    }
+
 
     render() {
         this.colorUVTest()
@@ -261,10 +271,6 @@ export class Application {
         this.updateScreen()
         // requestAnimationFrame(() => this.run())
     }
-
-
-
-
 
     /**
      ********************
