@@ -252,7 +252,11 @@ export class Application {
     }
 
     viewportToCanvas(vec: Vec2, viewportWidth: number, viewportHeight: number, canvasWidth: number, canvasHeight: number): Vec2 {
-        return new Vec2(vec.x / viewportWidth * canvasWidth, vec.y / viewportHeight * canvasHeight)
+        // Since HTML canvas start from 0, 0 at top to height width at bottom we need to translate the transformed point after scaling
+        // with respect to the viewport
+        const scaledX = vec.x / viewportWidth * canvasWidth
+        const scaledY = vec.y / viewportHeight * canvasHeight
+        return new Vec2(scaledX + canvasWidth / 2, scaledY + canvasHeight / 2)
     }
 
 
@@ -342,6 +346,8 @@ export class Application {
         this.drawLineTest()
         this.drawTriWireframeTest()
         this.drawCubeProjTest()
+        this.drawCubeProjTest2()
+        this.drawCubeTest()
     }
 
     run() {
@@ -437,65 +443,76 @@ export class Application {
                 this.#putPixel(j, i, new IVec3(j / this.width * 255, i / this.height * 255, 0))
     }
 
-    // private drawCubeProjTest() {
-    //
-    //     const transY = 1
-    //     // Front Vertices
-    //     const vAf = new Vec3(-2, -0.5 + transY, 5)
-    //     const vBf = new Vec3(-2, 0.5 + transY , 5)
-    //     const vCf = new Vec3(-1, 0.5 + transY , 5)
-    //     const vDf = new Vec3(-1, -0.5 + transY, 5)
-    //
-    //     // Back vertices
-    //     const vAb = new Vec3(-2, -0.5 + transY, 6)
-    //     const vBb = new Vec3(-2, 0.5 + transY, 6)
-    //     const vCb = new Vec3(-1, 0.5 + transY, 6)
-    //     const vDb = new Vec3(-1, -0.5 + transY, 6)
-    //
-    //
-    //     const RED = new IVec3(255, 255, 0)
-    //     const GREEN = new IVec3(0, 255, 0)
-    //     const BLUE = new IVec3(0, 0, 255)
-    //     const viewportDist = 1
-    //
-    //     this.drawLine(this.viewportToCanvas(this.perspectiveDivide(vAf, viewportDist), 1, 1, this.width, this.height), this.viewportToCanvas(this.perspectiveDivide(vBf, viewportDist), 1, 1, this.width, this.height), RED)
-    //     this.drawLine(this.viewportToCanvas(this.perspectiveDivide(vBf, viewportDist), 1, 1, this.width, this.height), this.viewportToCanvas(this.perspectiveDivide(vCf, viewportDist), 1, 1, this.width, this.height), RED)
-    //     this.drawLine(this.viewportToCanvas(this.perspectiveDivide(vCf, viewportDist), 1, 1, this.width, this.height), this.viewportToCanvas(this.perspectiveDivide(vDf, viewportDist), 1, 1, this.width, this.height), RED)
-    //     this.drawLine(this.viewportToCanvas(this.perspectiveDivide(vDf, viewportDist), 1, 1, this.width, this.height), this.viewportToCanvas(this.perspectiveDivide(vAf, viewportDist), 1, 1, this.width, this.height), RED)
-    //
-    //
-    //     this.drawLine(this.viewportToCanvas(this.perspectiveDivide(vAb, viewportDist), 1, 1, this.width, this.height), this.viewportToCanvas(this.perspectiveDivide(vBb, viewportDist), 1, 1, this.width, this.height), GREEN)
-    //     this.drawLine(this.viewportToCanvas(this.perspectiveDivide(vBb, viewportDist), 1, 1, this.width, this.height), this.viewportToCanvas(this.perspectiveDivide(vCb, viewportDist), 1, 1, this.width, this.height), GREEN)
-    //     this.drawLine(this.viewportToCanvas(this.perspectiveDivide(vCb, viewportDist), 1, 1, this.width, this.height), this.viewportToCanvas(this.perspectiveDivide(vDb, viewportDist), 1, 1, this.width, this.height), GREEN)
-    //     this.drawLine(this.viewportToCanvas(this.perspectiveDivide(vDb, viewportDist), 1, 1, this.width, this.height), this.viewportToCanvas(this.perspectiveDivide(vAb, viewportDist), 1, 1, this.width, this.height), GREEN)
-    //
-    //
-    //     this.drawLine(this.viewportToCanvas(this.perspectiveDivide(vAf, viewportDist), 1, 1, this.width, this.height), this.viewportToCanvas(this.perspectiveDivide(vAb, viewportDist), 1, 1, this.width, this.height), BLUE)
-    //     this.drawLine(this.viewportToCanvas(this.perspectiveDivide(vBf, viewportDist), 1, 1, this.width, this.height), this.viewportToCanvas(this.perspectiveDivide(vBb, viewportDist), 1, 1, this.width, this.height), BLUE)
-    //     this.drawLine(this.viewportToCanvas(this.perspectiveDivide(vCf, viewportDist), 1, 1, this.width, this.height), this.viewportToCanvas(this.perspectiveDivide(vCb, viewportDist), 1, 1, this.width, this.height), BLUE)
-    //     this.drawLine(this.viewportToCanvas(this.perspectiveDivide(vDf, viewportDist), 1, 1, this.width, this.height), this.viewportToCanvas(this.perspectiveDivide(vDb, viewportDist), 1, 1, this.width, this.height), BLUE)
-    //
-    //
-    //     this.drawLine(this.perspectiveDivide(vAf, viewportDist), this.perspectiveDivide(vBf, viewportDist), BLUE)
-    //     this.drawLine(this.perspectiveDivide(vBf, viewportDist), this.perspectiveDivide(vCf, viewportDist), BLUE)
-    //     this.drawLine(this.perspectiveDivide(vCf, viewportDist), this.perspectiveDivide(vDf, viewportDist), BLUE)
-    //     this.drawLine(this.perspectiveDivide(vDf, viewportDist), this.perspectiveDivide(vAf, viewportDist), BLUE)
-    // }
+    renderObject(vertices: Vec3[], indices: IVec3[]) {
+        const viewportDistance = 1
+        const viewportWidth = 2
+        const viewportHeight = 2
 
-    private drawCubeProjTest() {
+        const projectVertices = vertices.map((vertex) => this.viewportToCanvas(this.perspectiveProj(vertex, viewportDistance), viewportWidth, viewportHeight, this.width, this.height))
+        // this.drawTriangle(projectVertices[5], projectVertices[4], projectVertices[7], new IVec3(255, 0, 0))
+        for (const {r, g, b} of indices) {
+            this.drawTriangleWireframe(projectVertices[r], projectVertices[g], projectVertices[b], new IVec3(0, 255, 255))
+        }
+    }
+
+
+    private drawCubeProjTest2() {
 
         const transY = 1
         // Front Vertices
+        const vAf = new Vec3(-2, -0.5 + transY, 4)
+        const vBf = new Vec3(-2, 0.5 + transY, 4)
+        const vCf = new Vec3(-1, 0.5 + transY, 4)
+        const vDf = new Vec3(-1, -0.5 + transY, 4)
+
+        // Back vertices
+        const vAb = new Vec3(-2, -0.5 + transY, 4.75)
+        const vBb = new Vec3(-2, 0.5 + transY, 4.75)
+        const vCb = new Vec3(-1, 0.5 + transY, 4.75)
+        const vDb = new Vec3(-1, -0.5 + transY, 4.75)
+
+
+        const RED = new IVec3(255, 255, 0)
+        const GREEN = new IVec3(0, 255, 0)
+        const BLUE = new IVec3(0, 0, 255)
+        const viewportDist = 1
+
+        this.drawLine(this.viewportToCanvas(this.perspectiveProj(vAf, viewportDist), 1, 1, this.width, this.height), this.viewportToCanvas(this.perspectiveProj(vBf, viewportDist), 1, 1, this.width, this.height), RED)
+        this.drawLine(this.viewportToCanvas(this.perspectiveProj(vBf, viewportDist), 1, 1, this.width, this.height), this.viewportToCanvas(this.perspectiveProj(vCf, viewportDist), 1, 1, this.width, this.height), RED)
+        this.drawLine(this.viewportToCanvas(this.perspectiveProj(vCf, viewportDist), 1, 1, this.width, this.height), this.viewportToCanvas(this.perspectiveProj(vDf, viewportDist), 1, 1, this.width, this.height), RED)
+        this.drawLine(this.viewportToCanvas(this.perspectiveProj(vDf, viewportDist), 1, 1, this.width, this.height), this.viewportToCanvas(this.perspectiveProj(vAf, viewportDist), 1, 1, this.width, this.height), RED)
+
+
+        this.drawLine(this.viewportToCanvas(this.perspectiveProj(vAb, viewportDist), 1, 1, this.width, this.height), this.viewportToCanvas(this.perspectiveProj(vBb, viewportDist), 1, 1, this.width, this.height), GREEN)
+        this.drawLine(this.viewportToCanvas(this.perspectiveProj(vBb, viewportDist), 1, 1, this.width, this.height), this.viewportToCanvas(this.perspectiveProj(vCb, viewportDist), 1, 1, this.width, this.height), GREEN)
+        this.drawLine(this.viewportToCanvas(this.perspectiveProj(vCb, viewportDist), 1, 1, this.width, this.height), this.viewportToCanvas(this.perspectiveProj(vDb, viewportDist), 1, 1, this.width, this.height), GREEN)
+        this.drawLine(this.viewportToCanvas(this.perspectiveProj(vDb, viewportDist), 1, 1, this.width, this.height), this.viewportToCanvas(this.perspectiveProj(vAb, viewportDist), 1, 1, this.width, this.height), GREEN)
+
+
+        this.drawLine(this.viewportToCanvas(this.perspectiveProj(vAf, viewportDist), 1, 1, this.width, this.height), this.viewportToCanvas(this.perspectiveProj(vAb, viewportDist), 1, 1, this.width, this.height), BLUE)
+        this.drawLine(this.viewportToCanvas(this.perspectiveProj(vBf, viewportDist), 1, 1, this.width, this.height), this.viewportToCanvas(this.perspectiveProj(vBb, viewportDist), 1, 1, this.width, this.height), BLUE)
+        this.drawLine(this.viewportToCanvas(this.perspectiveProj(vCf, viewportDist), 1, 1, this.width, this.height), this.viewportToCanvas(this.perspectiveProj(vCb, viewportDist), 1, 1, this.width, this.height), BLUE)
+        this.drawLine(this.viewportToCanvas(this.perspectiveProj(vDf, viewportDist), 1, 1, this.width, this.height), this.viewportToCanvas(this.perspectiveProj(vDb, viewportDist), 1, 1, this.width, this.height), BLUE)
+
+
+        this.drawLine(this.perspectiveProj(vAf, viewportDist), this.perspectiveProj(vBf, viewportDist), BLUE)
+        this.drawLine(this.perspectiveProj(vBf, viewportDist), this.perspectiveProj(vCf, viewportDist), BLUE)
+        this.drawLine(this.perspectiveProj(vCf, viewportDist), this.perspectiveProj(vDf, viewportDist), BLUE)
+        this.drawLine(this.perspectiveProj(vDf, viewportDist), this.perspectiveProj(vAf, viewportDist), BLUE)
+    }
+
+    private drawCubeProjTest() {
+        // Front Vertices
         const vAf = new Vec3(400, 400, 2)
-        const vBf = new Vec3(600, 400 , 2)
-        const vCf = new Vec3(600, 600 , 2)
+        const vBf = new Vec3(600, 400, 2)
+        const vCf = new Vec3(600, 600, 2)
         const vDf = new Vec3(400, 600, 2)
 
 
         // Back vertices
         const vAb = new Vec3(440, 360, 1.75)
-        const vBb = new Vec3(640, 360 , 1.75)
-        const vCb = new Vec3(640, 560 , 1.75)
+        const vBb = new Vec3(640, 360, 1.75)
+        const vCb = new Vec3(640, 560, 1.75)
         const vDb = new Vec3(440, 560, 1.75)
 
 
@@ -519,5 +536,37 @@ export class Application {
         this.drawLine(this.perspectiveProj(vBf, viewportDist), this.perspectiveProj(vBb, viewportDist), BLUE)
         this.drawLine(this.perspectiveProj(vCf, viewportDist), this.perspectiveProj(vCb, viewportDist), BLUE)
         this.drawLine(this.perspectiveProj(vDf, viewportDist), this.perspectiveProj(vDb, viewportDist), BLUE)
+    }
+
+    drawCubeTest() {
+        const vertices = [
+            new Vec3(1, 1, 1),
+            new Vec3(-1, 1, 1),
+            new Vec3(-1, -1, 1),
+            new Vec3(1, -1, 1),
+            new Vec3(1, 1, -1),
+            new Vec3(-1, 1, -1),
+            new Vec3(-1, -1, -1),
+            new Vec3(1, -1, -1),
+        ]
+
+        const indices = [
+            new IVec3(0, 1, 2),
+            new IVec3(0, 2, 3),
+            new IVec3(4, 0, 3),
+            new IVec3(4, 3, 7),
+            new IVec3(5, 4, 7),
+            new IVec3(5, 7, 6),
+            new IVec3(1, 6, 2),
+            new IVec3(4, 5, 1),
+            new IVec3(4, 1, 0),
+            new IVec3(2, 6, 7),
+            new IVec3(2, 7, 3),
+        ]
+
+        const translation= new Vec3(-1.5, 0, 7)
+
+        this.renderObject(vertices.map(vertex => Vec3.Add(new Vec3(0, 0, 0), vertex, translation)), indices)
+
     }
 }
