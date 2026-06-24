@@ -27,4 +27,12 @@ export class Vec3 {
 
         return res;
     }
+
+    static Mul(res: Vec3, a: Vec3, s: number): Vec3 {
+        res.x = s * a.x
+        res.y = s * a.y
+        res.z = s * a.z
+
+        return res
+    }
 }

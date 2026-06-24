@@ -1,5 +1,6 @@
 import {IVec3} from "./math/ivec3"
 import {Vec2} from "./math/vec2.ts";
+import {Vec3} from "./math/vec3.ts";
 
 export class Application {
     canvas: HTMLCanvasElement;
@@ -250,6 +251,7 @@ export class Application {
     drawTriangle(p0: Vec2, p1: Vec2, p2: Vec2, color: IVec3) {
         // Sort the vertices in the increasing order of y value
         const [a, b, c] = [p0, p1, p2].sort((a, b) => a.y - b.y)
+        const h0 = 0.2, h1 = 0.5, h2 = 1.0 // TODO: Update Intensities at each vertex
 
         // Interpolate the vertices
         // Since we are drawing horizontal lines
@@ -261,32 +263,59 @@ export class Application {
         // where `i` indicate independent
         const xAC = this.interpolate(a.y, a.x, c.y, c.x); // Since `a` is the smallest and c is the largest y value this is our longest edge values
 
+        // Interpolate the color intensities at each vertex with respect to y
+        // Shorter sides
+        const hAB = this.interpolate(a.y, h0, b.y, h1);
+        const hBC = this.interpolate(b.y, h1, c.y, h2);
+        // Longer Side
+        const hAC = this.interpolate(a.y, h0, c.y, h2);
+
         // Join the shorter sides
         // But since we have one common value in both remove it from one of the interpolated arrays
         xAB.pop()
         const xABC = [...xAB, ...xBC]
 
+        // Join shorter sides of color intensities
+        hAB.pop()
+        const hABC = [...hAB, ...hBC]
+
         // Find the left and right side
         const midpointIndex = Math.round(xAC.length / 2)
         // By comparing hte x values(interpolated values) for the middle of the sides we can determine which is the left side
-        let left, right;
+        let left, right, leftH, rightH; // Int -> Intensity
         if (xAC[midpointIndex] < xABC[midpointIndex]) {
             // xCA is the left side
             left = xAC
             right = xABC
+
+            leftH = hAC
+            rightH = hABC
         } else {
             // xABC is on the left side
             left = xABC
             right = xAC
+
+            leftH = hABC
+            rightH = hAC
         }
 
         // Draw line for each x and y values
         // Clarity
+        const interpolatedColor = new IVec3(0, 0, 0); // A holder var to hold the interpolated colors
         const minY = a.y
         const maxY = c.y
         for (let y = minY; y <= maxY; ++y) {
-            for (let x = left[y - minY]; x <= right[y - minY]; ++x) {
-                this.#putPixel(x, y, color)
+            const xLeft = left[y - minY]
+            const xRight = right[y - minY]
+
+            // Interpolate the color intensities from left to right with for each y value with respect
+            // to the interpolated left and right x values
+            const hSegment = this.interpolate(xLeft, leftH[y - minY], xRight, rightH[y - minY])
+
+            for (let x = xLeft; x <= xRight; ++x) {
+                // Interpolate the color
+                IVec3.Mul(interpolatedColor, color, hSegment[x - xLeft]) // Subtraction required to bring the index down to 0..n
+                this.#putPixel(x, y, interpolatedColor)
             }
         }
 
@@ -307,7 +336,7 @@ export class Application {
     }
 
     /**
-     ********************
+     *********************
      *     TEST CODE
      *********************
      */
