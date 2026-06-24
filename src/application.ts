@@ -131,7 +131,6 @@ export class Application {
         // Note: Must iterate until p1.x inclusive
         for (let x = p0.x; x <= p1.x; ++x) {
             this.#putPixel(x, y, color)
-            console.log(`x: ${x}, y: ${y}`)
             y += m
         }
 
@@ -342,18 +341,18 @@ export class Application {
 
 
     render() {
-        this.colorUVTest()
-        this.drawLineTest()
-        this.drawTriWireframeTest()
-        this.drawCubeProjTest()
-        this.drawCubeProjTest2()
-        this.drawCubeTest()
+         // this.colorUVTest()
+        // this.drawLineTest()
+        // this.drawTriWireframeTest()
+        //  this.drawCubeProjTest()
+        // this.drawCubeProjTest2()
+        //  this.drawCubeTest()
     }
 
     run() {
-        this.render()
         // this.clearScreen()
-        this.updateScreen()
+        this.render()
+        // this.updateScreen()
         // requestAnimationFrame(() => this.run())
     }
 
@@ -451,10 +450,12 @@ export class Application {
         const viewportHeight = 2
 
         const projectVertices = vertices.map((vertex) => this.viewportToCanvas(this.perspectiveProj(vertex, viewportDistance), viewportWidth, viewportHeight, this.width, this.height))
-        // this.drawTriangle(projectVertices[5], projectVertices[4], projectVertices[7], new IVec3(255, 0, 0))
         for (const {r, g, b} of indices) {
-            this.drawTriangleWireframe(projectVertices[r], projectVertices[g], projectVertices[b], new IVec3(255, 255, 255))
+            this.drawTriangle(projectVertices[r], projectVertices[g], projectVertices[b], new IVec3(255, 255, 255))
+            // this.drawTriangleWireframe(projectVertices[r], projectVertices[g], projectVertices[b], new IVec3(255, 255, 0))
         }
+
+        this.updateScreen()
     }
 
 
