@@ -248,7 +248,11 @@ export class Application {
      * @returns A 3D vector with perspective divide applied.
      */
     perspectiveDivide(vec: Vec3, d: number): Vec3 {
-       return new Vec3(vec.x/vec.z * d, vec.y/vec.z * d, d)
+        return new Vec3(vec.x / vec.z * d, vec.y / vec.z * d, d)
+    }
+
+    viewportToCanvas(vec: Vec3, viewportWidth: number, viewportHeight: number, canvasWidth: number, canvasHeight: number): Vec2 {
+        return new Vec2(vec.x / viewportWidth * canvasWidth, vec.y / viewportHeight * canvasHeight)
     }
 
 
@@ -337,6 +341,7 @@ export class Application {
         this.colorUVTest()
         this.drawLineTest()
         this.drawTriWireframeTest()
+        this.drawCubeProjTest()
     }
 
     run() {
@@ -430,5 +435,89 @@ export class Application {
         for (let i = 0; i < this.height; ++i)
             for (let j = 0; j < this.width; ++j)
                 this.#putPixel(j, i, new IVec3(j / this.width * 255, i / this.height * 255, 0))
+    }
+
+    // private drawCubeProjTest() {
+    //
+    //     const transY = 1
+    //     // Front Vertices
+    //     const vAf = new Vec3(-2, -0.5 + transY, 5)
+    //     const vBf = new Vec3(-2, 0.5 + transY , 5)
+    //     const vCf = new Vec3(-1, 0.5 + transY , 5)
+    //     const vDf = new Vec3(-1, -0.5 + transY, 5)
+    //
+    //     // Back vertices
+    //     const vAb = new Vec3(-2, -0.5 + transY, 6)
+    //     const vBb = new Vec3(-2, 0.5 + transY, 6)
+    //     const vCb = new Vec3(-1, 0.5 + transY, 6)
+    //     const vDb = new Vec3(-1, -0.5 + transY, 6)
+    //
+    //
+    //     const RED = new IVec3(255, 255, 0)
+    //     const GREEN = new IVec3(0, 255, 0)
+    //     const BLUE = new IVec3(0, 0, 255)
+    //     const viewportDist = 1
+    //
+    //     this.drawLine(this.viewportToCanvas(this.perspectiveDivide(vAf, viewportDist), 1, 1, this.width, this.height), this.viewportToCanvas(this.perspectiveDivide(vBf, viewportDist), 1, 1, this.width, this.height), RED)
+    //     this.drawLine(this.viewportToCanvas(this.perspectiveDivide(vBf, viewportDist), 1, 1, this.width, this.height), this.viewportToCanvas(this.perspectiveDivide(vCf, viewportDist), 1, 1, this.width, this.height), RED)
+    //     this.drawLine(this.viewportToCanvas(this.perspectiveDivide(vCf, viewportDist), 1, 1, this.width, this.height), this.viewportToCanvas(this.perspectiveDivide(vDf, viewportDist), 1, 1, this.width, this.height), RED)
+    //     this.drawLine(this.viewportToCanvas(this.perspectiveDivide(vDf, viewportDist), 1, 1, this.width, this.height), this.viewportToCanvas(this.perspectiveDivide(vAf, viewportDist), 1, 1, this.width, this.height), RED)
+    //
+    //
+    //     this.drawLine(this.viewportToCanvas(this.perspectiveDivide(vAb, viewportDist), 1, 1, this.width, this.height), this.viewportToCanvas(this.perspectiveDivide(vBb, viewportDist), 1, 1, this.width, this.height), GREEN)
+    //     this.drawLine(this.viewportToCanvas(this.perspectiveDivide(vBb, viewportDist), 1, 1, this.width, this.height), this.viewportToCanvas(this.perspectiveDivide(vCb, viewportDist), 1, 1, this.width, this.height), GREEN)
+    //     this.drawLine(this.viewportToCanvas(this.perspectiveDivide(vCb, viewportDist), 1, 1, this.width, this.height), this.viewportToCanvas(this.perspectiveDivide(vDb, viewportDist), 1, 1, this.width, this.height), GREEN)
+    //     this.drawLine(this.viewportToCanvas(this.perspectiveDivide(vDb, viewportDist), 1, 1, this.width, this.height), this.viewportToCanvas(this.perspectiveDivide(vAb, viewportDist), 1, 1, this.width, this.height), GREEN)
+    //
+    //
+    //     this.drawLine(this.viewportToCanvas(this.perspectiveDivide(vAf, viewportDist), 1, 1, this.width, this.height), this.viewportToCanvas(this.perspectiveDivide(vAb, viewportDist), 1, 1, this.width, this.height), BLUE)
+    //     this.drawLine(this.viewportToCanvas(this.perspectiveDivide(vBf, viewportDist), 1, 1, this.width, this.height), this.viewportToCanvas(this.perspectiveDivide(vBb, viewportDist), 1, 1, this.width, this.height), BLUE)
+    //     this.drawLine(this.viewportToCanvas(this.perspectiveDivide(vCf, viewportDist), 1, 1, this.width, this.height), this.viewportToCanvas(this.perspectiveDivide(vCb, viewportDist), 1, 1, this.width, this.height), BLUE)
+    //     this.drawLine(this.viewportToCanvas(this.perspectiveDivide(vDf, viewportDist), 1, 1, this.width, this.height), this.viewportToCanvas(this.perspectiveDivide(vDb, viewportDist), 1, 1, this.width, this.height), BLUE)
+    //
+    //
+    //     this.drawLine(this.perspectiveDivide(vAf, viewportDist), this.perspectiveDivide(vBf, viewportDist), BLUE)
+    //     this.drawLine(this.perspectiveDivide(vBf, viewportDist), this.perspectiveDivide(vCf, viewportDist), BLUE)
+    //     this.drawLine(this.perspectiveDivide(vCf, viewportDist), this.perspectiveDivide(vDf, viewportDist), BLUE)
+    //     this.drawLine(this.perspectiveDivide(vDf, viewportDist), this.perspectiveDivide(vAf, viewportDist), BLUE)
+    // }
+
+    private drawCubeProjTest() {
+
+        const transY = 1
+        // Front Vertices
+        const vAf = new Vec3(400, 400, 2)
+        const vBf = new Vec3(600, 400 , 2)
+        const vCf = new Vec3(600, 600 , 2)
+        const vDf = new Vec3(400, 600, 2)
+
+
+        // Back vertices
+        const vAb = new Vec3(440, 360, 1.75)
+        const vBb = new Vec3(640, 360 , 1.75)
+        const vCb = new Vec3(640, 560 , 1.75)
+        const vDb = new Vec3(440, 560, 1.75)
+
+
+        const RED = new IVec3(120, 0, 0)
+        const GREEN = new IVec3(0, 120, 0)
+        const BLUE = new IVec3(0, 0, 120)
+        const viewportDist = 3
+
+        //Note: drawLine takes 2d vector, but 3d vector works here since they have similar member variables
+        this.drawLine(this.perspectiveDivide(vAf, viewportDist), this.perspectiveDivide(vBf, viewportDist), RED)
+        this.drawLine(this.perspectiveDivide(vBf, viewportDist), this.perspectiveDivide(vCf, viewportDist), RED)
+        this.drawLine(this.perspectiveDivide(vCf, viewportDist), this.perspectiveDivide(vDf, viewportDist), RED)
+        this.drawLine(this.perspectiveDivide(vDf, viewportDist), this.perspectiveDivide(vAf, viewportDist), RED)
+
+        this.drawLine(this.perspectiveDivide(vAb, viewportDist), this.perspectiveDivide(vBb, viewportDist), GREEN)
+        this.drawLine(this.perspectiveDivide(vBb, viewportDist), this.perspectiveDivide(vCb, viewportDist), GREEN)
+        this.drawLine(this.perspectiveDivide(vCb, viewportDist), this.perspectiveDivide(vDb, viewportDist), GREEN)
+        this.drawLine(this.perspectiveDivide(vDb, viewportDist), this.perspectiveDivide(vAb, viewportDist), GREEN)
+
+        this.drawLine(this.perspectiveDivide(vAf, viewportDist), this.perspectiveDivide(vAb, viewportDist), BLUE)
+        this.drawLine(this.perspectiveDivide(vBf, viewportDist), this.perspectiveDivide(vBb, viewportDist), BLUE)
+        this.drawLine(this.perspectiveDivide(vCf, viewportDist), this.perspectiveDivide(vCb, viewportDist), BLUE)
+        this.drawLine(this.perspectiveDivide(vDf, viewportDist), this.perspectiveDivide(vDb, viewportDist), BLUE)
     }
 }
