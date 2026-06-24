@@ -241,17 +241,17 @@ export class Application {
     }
 
     /**
-     * Perform a simple perspective divide
-     * @param vec The vertex(vector) to perform the perspective divide on
+     * Perform a simple perspective projection.
+     * @param vec The vertex(vector) to perform the perspective projection on.
      * @param d   The distance between the camera and the viewport.
      *
-     * @returns A 3D vector with perspective divide applied.
+     * @returns A 3D vector with perspective projection applied.
      */
-    perspectiveDivide(vec: Vec3, d: number): Vec3 {
-        return new Vec3(vec.x / vec.z * d, vec.y / vec.z * d, d)
+    perspectiveProj(vec: Vec3, d: number): Vec2 {
+        return new Vec2((vec.x / vec.z) * d, (vec.y / vec.z) * d)
     }
 
-    viewportToCanvas(vec: Vec3, viewportWidth: number, viewportHeight: number, canvasWidth: number, canvasHeight: number): Vec2 {
+    viewportToCanvas(vec: Vec2, viewportWidth: number, viewportHeight: number, canvasWidth: number, canvasHeight: number): Vec2 {
         return new Vec2(vec.x / viewportWidth * canvasWidth, vec.y / viewportHeight * canvasHeight)
     }
 
@@ -505,19 +505,19 @@ export class Application {
         const viewportDist = 3
 
         //Note: drawLine takes 2d vector, but 3d vector works here since they have similar member variables
-        this.drawLine(this.perspectiveDivide(vAf, viewportDist), this.perspectiveDivide(vBf, viewportDist), RED)
-        this.drawLine(this.perspectiveDivide(vBf, viewportDist), this.perspectiveDivide(vCf, viewportDist), RED)
-        this.drawLine(this.perspectiveDivide(vCf, viewportDist), this.perspectiveDivide(vDf, viewportDist), RED)
-        this.drawLine(this.perspectiveDivide(vDf, viewportDist), this.perspectiveDivide(vAf, viewportDist), RED)
+        this.drawLine(this.perspectiveProj(vAf, viewportDist), this.perspectiveProj(vBf, viewportDist), RED)
+        this.drawLine(this.perspectiveProj(vBf, viewportDist), this.perspectiveProj(vCf, viewportDist), RED)
+        this.drawLine(this.perspectiveProj(vCf, viewportDist), this.perspectiveProj(vDf, viewportDist), RED)
+        this.drawLine(this.perspectiveProj(vDf, viewportDist), this.perspectiveProj(vAf, viewportDist), RED)
 
-        this.drawLine(this.perspectiveDivide(vAb, viewportDist), this.perspectiveDivide(vBb, viewportDist), GREEN)
-        this.drawLine(this.perspectiveDivide(vBb, viewportDist), this.perspectiveDivide(vCb, viewportDist), GREEN)
-        this.drawLine(this.perspectiveDivide(vCb, viewportDist), this.perspectiveDivide(vDb, viewportDist), GREEN)
-        this.drawLine(this.perspectiveDivide(vDb, viewportDist), this.perspectiveDivide(vAb, viewportDist), GREEN)
+        this.drawLine(this.perspectiveProj(vAb, viewportDist), this.perspectiveProj(vBb, viewportDist), GREEN)
+        this.drawLine(this.perspectiveProj(vBb, viewportDist), this.perspectiveProj(vCb, viewportDist), GREEN)
+        this.drawLine(this.perspectiveProj(vCb, viewportDist), this.perspectiveProj(vDb, viewportDist), GREEN)
+        this.drawLine(this.perspectiveProj(vDb, viewportDist), this.perspectiveProj(vAb, viewportDist), GREEN)
 
-        this.drawLine(this.perspectiveDivide(vAf, viewportDist), this.perspectiveDivide(vAb, viewportDist), BLUE)
-        this.drawLine(this.perspectiveDivide(vBf, viewportDist), this.perspectiveDivide(vBb, viewportDist), BLUE)
-        this.drawLine(this.perspectiveDivide(vCf, viewportDist), this.perspectiveDivide(vCb, viewportDist), BLUE)
-        this.drawLine(this.perspectiveDivide(vDf, viewportDist), this.perspectiveDivide(vDb, viewportDist), BLUE)
+        this.drawLine(this.perspectiveProj(vAf, viewportDist), this.perspectiveProj(vAb, viewportDist), BLUE)
+        this.drawLine(this.perspectiveProj(vBf, viewportDist), this.perspectiveProj(vBb, viewportDist), BLUE)
+        this.drawLine(this.perspectiveProj(vCf, viewportDist), this.perspectiveProj(vCb, viewportDist), BLUE)
+        this.drawLine(this.perspectiveProj(vDf, viewportDist), this.perspectiveProj(vDb, viewportDist), BLUE)
     }
 }
