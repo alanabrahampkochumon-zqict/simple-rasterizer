@@ -1,3 +1,5 @@
+import type {Vec4} from "./vec4.ts";
+
 export class Mat4 {
 
     data: Float32Array
@@ -126,6 +128,15 @@ export class Mat4 {
         res.data[13] = a.data[13] * factor
         res.data[14] = a.data[14] * factor
         res.data[15] = a.data[15] * factor
+
+        return res;
+    }
+
+    static MulV(res: Vec4, vec: Vec4, mat: Mat4): Vec4 {
+        res.x = vec.x * mat.data[0] + vec.y * mat.data[4] + vec.z * mat.data[8] + vec.w * mat.data[12]
+        res.y = vec.x * mat.data[1] + vec.y * mat.data[5] + vec.z * mat.data[9] + vec.w * mat.data[13]
+        res.z = vec.x * mat.data[2] + vec.y * mat.data[6] + vec.z * mat.data[10] + vec.w * mat.data[14]
+        res.w = vec.x * mat.data[3] + vec.y * mat.data[7] + vec.z * mat.data[11] + vec.w * mat.data[15]
 
         return res;
     }
