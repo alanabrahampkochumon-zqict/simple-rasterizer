@@ -240,6 +240,17 @@ export class Application {
         }
     }
 
+    /**
+     * Perform a simple perspective divide
+     * @param vec The vertex(vector) to perform the perspective divide on
+     * @param d   The distance between the camera and the viewport.
+     *
+     * @returns A 3D vector with perspective divide applied.
+     */
+    perspectiveDivide(vec: Vec3, d: number): Vec3 {
+       return new Vec3(vec.x/vec.z * d, vec.y/vec.z * d, d)
+    }
+
 
     drawTriangleWireframe(p0: Vec2, p1: Vec2, p2: Vec2, color: IVec3) {
         // 0 to 1, 1 to 2, 2 to 0
