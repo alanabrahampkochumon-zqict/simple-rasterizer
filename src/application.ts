@@ -357,6 +357,7 @@ export class Application {
         // requestAnimationFrame(() => this.run())
     }
 
+
     /**
      *********************
      *     TEST CODE
@@ -416,7 +417,7 @@ export class Application {
         this.drawLine(new Vec2(topRight.x, topRight.y), new Vec2(bottomRight.x, bottomRight.y), new IVec3(255, 0, 255)) // Can't draw vertical line since slope == 0
         this.drawLine(new Vec2(bottomLeft.x, bottomLeft.y), new Vec2(topRight.x, topRight.y), new IVec3(255, 0, 255)) // Cross
 
-        this.drawLine(new Vec2(0, 0), new Vec2(this.width, this.height), new IVec3(255, 255, 255))
+        this.drawLine(new Vec2(0, 0), new Vec2(this.width, this.height), new IVec3(255, 225, 22))
 
         // Right to left line
         this.drawLine(new Vec2(800, 100), new Vec2(50, 50), new IVec3(255, 255, 0))
@@ -443,6 +444,7 @@ export class Application {
                 this.#putPixel(j, i, new IVec3(j / this.width * 255, i / this.height * 255, 0))
     }
 
+    // TODO: Color
     renderObject(vertices: Vec3[], indices: IVec3[]) {
         const viewportDistance = 1
         const viewportWidth = 2
@@ -451,7 +453,7 @@ export class Application {
         const projectVertices = vertices.map((vertex) => this.viewportToCanvas(this.perspectiveProj(vertex, viewportDistance), viewportWidth, viewportHeight, this.width, this.height))
         // this.drawTriangle(projectVertices[5], projectVertices[4], projectVertices[7], new IVec3(255, 0, 0))
         for (const {r, g, b} of indices) {
-            this.drawTriangleWireframe(projectVertices[r], projectVertices[g], projectVertices[b], new IVec3(0, 255, 255))
+            this.drawTriangleWireframe(projectVertices[r], projectVertices[g], projectVertices[b], new IVec3(255, 255, 255))
         }
     }
 

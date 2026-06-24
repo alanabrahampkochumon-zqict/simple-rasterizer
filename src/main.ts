@@ -1,6 +1,8 @@
-import { Application } from "./application";
+import {Application} from "./application";
 import "./style.css";
 import {IVec3} from "./math/ivec3.ts";
+import {openFile} from "./File.ts";
+import {parseObject} from "./parsers/ObjectParser.ts";
 
 const canvas = document.getElementById("canvas") as HTMLCanvasElement | null;
 
@@ -13,5 +15,11 @@ if (canvas != null) {
     window.addEventListener("resize", () => {
         app.resize();
     });
+    canvas.addEventListener("click", async () => {
 
+// TEST CODEs
+        const file = await openFile()
+        const mesh = parseObject(file)
+        console.log(mesh)
+    })
 }
