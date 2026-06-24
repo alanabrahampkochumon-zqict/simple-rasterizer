@@ -254,7 +254,7 @@ export class Application {
         // Since HTML canvas start from 0, 0 at top to height width at bottom we need to translate the transformed point after scaling
         // with respect to the viewport
         const scaledX = vec.x / viewportWidth * canvasWidth
-        const scaledY = vec.y / viewportHeight * canvasHeight
+        const scaledY = - vec.y / viewportHeight * canvasHeight
         return new Vec2(scaledX + canvasWidth / 2, scaledY + canvasHeight / 2)
     }
 
@@ -269,7 +269,7 @@ export class Application {
     drawTriangle(p0: Vec2, p1: Vec2, p2: Vec2, color: IVec3) {
         // Sort the vertices in the increasing order of y value
         const [a, b, c] = [p0, p1, p2].sort((a, b) => a.y - b.y)
-        const h0 = 0.2, h1 = 0.5, h2 = 1.0 // TODO: Update Intensities at each vertex
+        const h0 = 1, h1 = 1, h2 = 1.0 // TODO: Update Intensities at each vertex
 
         // Interpolate the vertices
         // Since we are drawing horizontal lines
@@ -334,6 +334,7 @@ export class Application {
                 // Interpolate the color
                 IVec3.Mul(interpolatedColor, color, hSegment[x - xLeft]) // Subtraction required to bring the index down to 0..n
                 this.#putPixel(x, y, interpolatedColor)
+                // this.#putPixel(x, y, color)
             }
         }
 
@@ -445,14 +446,14 @@ export class Application {
 
     // TODO: Color
     renderObject(vertices: Vec3[], indices: IVec3[]) {
-        const viewportDistance = 1
+        const viewportDistance = 10
         const viewportWidth = 2
         const viewportHeight = 2
 
         const projectVertices = vertices.map((vertex) => this.viewportToCanvas(this.perspectiveProj(vertex, viewportDistance), viewportWidth, viewportHeight, this.width, this.height))
         for (const {r, g, b} of indices) {
-            this.drawTriangle(projectVertices[r], projectVertices[g], projectVertices[b], new IVec3(255, 255, 255))
-            // this.drawTriangleWireframe(projectVertices[r], projectVertices[g], projectVertices[b], new IVec3(255, 255, 0))
+            this.drawTriangle(projectVertices[r], projectVertices[g], projectVertices[b], new IVec3(255, 255, 0))
+            // this.drawTriangleWireframe(projectVertices[r], projectVertices[g], projectVertices[b], new IVec3(0, 255, 255))
         }
 
         this.updateScreen()

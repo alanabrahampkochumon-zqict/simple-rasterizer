@@ -19,11 +19,11 @@ if (canvas != null) {
 
     // TODO: Move to a dedicated panel
     canvas.addEventListener("click", async () => {
-
+// TODO: Fix Rendering artifacting on face
 // TEST CODEs
         const file = await openFile()
         const mesh = await parseObject(file)
-        const translation = new Vec3(-1.5, 0, 7)
+        const translation = new Vec3(0, 0, 7)
         app.renderObject(mesh.vertices.map(vertex => Vec3.Add(new Vec3(0, 0, 0), vertex, translation)), mesh.indices)
     })
 }
