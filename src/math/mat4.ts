@@ -166,4 +166,22 @@ export class Mat4 {
         )
     }
 
+    static Scale(x: number, y: number = 1, z: number = 1): Mat4 {
+        return new Mat4(
+            x, 0, 0, 0,
+            0, y, 0, 0,
+            0, 0, z, 0,
+            0, 0, 0, 1
+        )
+    }
+
+    static Translate(x: number, y: number, z: number): Mat4 {
+        return new Mat4(
+            1, 0, 0, x,
+            0, 1, 0, y,
+            0, 0, 1, z,
+            0, 0, 0, 1
+        )
+    }
+
 }
