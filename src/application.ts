@@ -10,8 +10,6 @@ export class Application {
     targetSurface: ImageData;
     clearColor: IVec3;
 
-    counter: number = 0
-
     constructor(canvas: HTMLCanvasElement) {
         this.canvas = canvas;
         const ctx = canvas.getContext("2d");
@@ -45,10 +43,6 @@ export class Application {
 
         // Recreate the buffer as screen size changes
         this.targetSurface = this.context.createImageData(this.width, this.height)
-
-        // console.log(`[Resized]: Height: ${this.height}, Width: ${this.width}`)
-        // console.log(`[Resized]: Context Height: ${this.context.canvas.height}, Width: ${this.context.canvas.width}`)
-        // console.log(`[Resized]: Buffer Height: ${this.targetSurface.height}, Width: ${this.targetSurface.width}`)
     }
 
     /**
@@ -369,45 +363,6 @@ export class Application {
         const bottomLeft = new Vec2(10, 500)
         const topRight = new Vec2(500, 10)
         const bottomRight = new Vec2(500, 500)
-
-
-        // Draws only horizontal lines + sloped
-        // this.drawLineH(new Vec2(topLeft.x, topLeft.y), new Vec2(topRight.x, topRight.y), new IVec3(255, 255, 255)) // Horizontal Line
-        // this.drawLineH(new Vec2(topLeft.x, topLeft.y), new Vec2(bottomLeft.x, bottomLeft.y), new IVec3(255, 255, 255)) // Can't draw vertical line since slope == 0
-        // this.drawLineH(new Vec2(topLeft.x, topLeft.y), new Vec2(bottomRight.x, bottomRight.y), new IVec3(255, 255, 255))// Cross
-        //
-        // this.drawLineH(new Vec2(bottomLeft.x, bottomLeft.y), new Vec2(bottomRight.x, bottomRight.y), new IVec3(255, 255, 255)) // Bottom Horizontal line
-        // this.drawLineH(new Vec2(topRight.x, topRight.y), new Vec2(bottomRight.x, bottomRight.y), new IVec3(255, 255, 255)) // Can't draw vertical line since slope == 0
-        // this.drawLineH(new Vec2(bottomLeft.x, bottomLeft.y), new Vec2(topRight.x, topRight.y), new IVec3(255, 255, 255)) // Cross
-        //
-        // // Right to left line
-        // this.drawLineH(new Vec2(800, 100), new Vec2(50, 50), new IVec3(0, 255, 255))
-        //
-        //
-        // // Draws only vertical lines + sloped
-        // this.drawLineV(new Vec2(topLeft.x, topLeft.y), new Vec2(topRight.x, topRight.y), new IVec3(255, 0, 255)) // Horizontal Line
-        // this.drawLineV(new Vec2(topLeft.x, topLeft.y), new Vec2(bottomLeft.x, bottomLeft.y), new IVec3(255, 0, 255)) // Can't draw vertical line since slope == 0
-        // this.drawLineV(new Vec2(topLeft.x, topLeft.y), new Vec2(bottomRight.x, bottomRight.y), new IVec3(255, 0, 255))// Cross
-        //
-        // this.drawLineV(new Vec2(bottomLeft.x, bottomLeft.y), new Vec2(bottomRight.x, bottomRight.y), new IVec3(255, 0, 255)) // Bottom Horizontal line
-        // this.drawLineV(new Vec2(topRight.x, topRight.y), new Vec2(bottomRight.x, bottomRight.y), new IVec3(255, 0, 255)) // Can't draw vertical line since slope == 0
-        // this.drawLineV(new Vec2(bottomLeft.x, bottomLeft.y), new Vec2(topRight.x, topRight.y), new IVec3(255, 0, 255)) // Cross
-        //
-        // // Right to left line
-        // this.drawLineV(new Vec2(800, 100), new Vec2(50, 50), new IVec3(255, 0, 255))
-
-        // this.#drawLineSlow(new Vec2(topLeft.x, topLeft.y), new Vec2(topRight.x, topRight.y), new IVec3(255, 0, 255)) // Horizontal Line
-        // this.#drawLineSlow(new Vec2(topLeft.x, topLeft.y), new Vec2(bottomLeft.x, bottomLeft.y), new IVec3(255, 0, 255)) // Can't draw vertical line since slope == 0
-        // this.#drawLineSlow(new Vec2(topLeft.x, topLeft.y), new Vec2(bottomRight.x, bottomRight.y), new IVec3(255, 0, 255))// Cross
-        //
-        // this.#drawLineSlow(new Vec2(bottomLeft.x, bottomLeft.y), new Vec2(bottomRight.x, bottomRight.y), new IVec3(255, 0, 255)) // Bottom Horizontal line
-        // this.#drawLineSlow(new Vec2(topRight.x, topRight.y), new Vec2(bottomRight.x, bottomRight.y), new IVec3(255, 0, 255)) // Can't draw vertical line since slope == 0
-        // this.#drawLineSlow(new Vec2(bottomLeft.x, bottomLeft.y), new Vec2(topRight.x, topRight.y), new IVec3(255, 0, 255)) // Cross
-        //
-        // this.#drawLineSlow(new Vec2(0, 0), new Vec2(this.width, this.height), new IVec3(255, 255, 255))
-        //
-        // // Right to left line
-        // this.#drawLineSlow(new Vec2(800, 100), new Vec2(50, 50), new IVec3(255, 255, 0))
 
         this.drawLine(new Vec2(topLeft.x, topLeft.y), new Vec2(topRight.x, topRight.y), new IVec3(255, 0, 255)) // Horizontal Line
         this.drawLine(new Vec2(topLeft.x, topLeft.y), new Vec2(bottomLeft.x, bottomLeft.y), new IVec3(255, 0, 255)) // Can't draw vertical line since slope == 0
