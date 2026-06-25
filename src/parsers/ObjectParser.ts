@@ -39,7 +39,7 @@ export async function parseObject(file: any): Promise<MeshObject> {
                 } else if (line.startsWith("f")) {
                     // Face indices
                     const indices = line.split(/\s+/).splice(1).map((indexStr) => {
-                        return indexStr.split(/\//).map(Number)
+                        return indexStr.split(/\/+/).map(Number)
                     })
                     // 0 -> Face, 1 -> Texture, 2 -> Normal
 
@@ -51,6 +51,7 @@ export async function parseObject(file: any): Promise<MeshObject> {
                     }
                 }
             }
+            console.log(meshObject)
             resolve(meshObject)
 
         }

@@ -67,8 +67,8 @@ export class Application {
         const colorChannels = 4
         // Without rounding the floating point math can throw off indices
         // often times creating jittery lines, or nothing besides a dot
-        y = Math.round(y)
         x = Math.round(x)
+        y = Math.round(y)
         const flatIndex = colorChannels * (y * this.width + x)
 
         // Only color if the flatIndex is in-bounds
@@ -186,11 +186,11 @@ export class Application {
         const interpolatedValues = []
 
         const m = (d1 - d0) / (i1 - i0)
-        let y = d0
+        let d = d0
 
-        for (let x = i0; x <= i1; ++x) {
-            interpolatedValues.push(y)
-            y += m
+        for (let i = i0; i <= i1; ++i) {
+            interpolatedValues.push(d)
+            d = d0 + m * (i - i0)
         }
 
         return interpolatedValues
@@ -214,7 +214,7 @@ export class Application {
 
             const values = this.interpolate(p0.x, p0.y, p1.x, p1.y)
             for (let x = p0.x; x <= p1.x; ++x) {
-                this.#putPixel(x, values[Math.round(x - p0.x)], color)
+                this.#putPixel(x, values[x - p0.x], color)
             }
         } else {
             // Line is verticalish
@@ -228,7 +228,7 @@ export class Application {
 
             const values = this.interpolate(p0.y, p0.x, p1.y, p1.x)
             for (let y = p0.y; y <= p1.y; ++y)
-                this.#putPixel(values[Math.round(y - p0.y)], y, color)
+                this.#putPixel(values[y - p0.y], y, color)
 
         }
     }
@@ -238,10 +238,12 @@ export class Application {
      * @param vec The vertex(vector) to perform the perspective projection on.
      * @param d   The distance between the camera and the viewport.
      *
-     * @returns A 3D vector with perspective projection applied.
+     * @returns A 2D vector with perspective projection applied.
      */
     perspectiveProj(vec: Vec3, d: number): Vec2 {
-        return new Vec2((vec.x / vec.z) * d, (vec.y / vec.z) * d)
+        // return new Vec2((vec.x / vec.z) * d, (vec.y / vec.z) * d)
+        const zFactor = 1 / vec.z
+        return new Vec2(vec.x * zFactor * d, vec.y * zFactor * d);
     }
 
     viewportToCanvas(vec: Vec2, viewportWidth: number, viewportHeight: number, canvasWidth: number, canvasHeight: number): Vec2 {
@@ -263,7 +265,7 @@ export class Application {
     drawTriangle(p0: Vec2, p1: Vec2, p2: Vec2, color: IVec3) {
         // Sort the vertices in the increasing order of y value
         const [a, b, c] = [p0, p1, p2].sort((a, b) => a.y - b.y)
-        const h0 = 1, h1 = 1, h2 = 1.0 // TODO: Update Intensities at each vertex
+        const h0 = .5, h1 = .25, h2 = 1.0 // TODO: Update Intensities at each vertex
 
         // Interpolate the vertices
         // Since we are drawing horizontal lines
@@ -295,6 +297,9 @@ export class Application {
         const midpointIndex = Math.round(xAC.length / 2)
         // By comparing hte x values(interpolated values) for the middle of the sides we can determine which is the left side
         let left, right, leftH, rightH; // Int -> Intensity
+        // Draw line for each x and y values
+        // Clarity
+        const interpolatedColor = new IVec3(0, 0, 0); // A holder var to hold the interpolated colors
         if (xAC[midpointIndex] < xABC[midpointIndex]) {
             // xCA is the left side
             left = xAC
@@ -310,14 +315,12 @@ export class Application {
             leftH = hABC
             rightH = hAC
         }
-
-        // Draw line for each x and y values
-        // Clarity
-        const interpolatedColor = new IVec3(0, 0, 0); // A holder var to hold the interpolated colors
         const minY = a.y
         const maxY = c.y
+
+        // Both interpolation
         for (let y = minY; y <= maxY; ++y) {
-            const yDelta = Math.round(y - minY)
+            const yDelta = y - minY
             let xLeft = left[yDelta]
             let xRight = right[yDelta]
 
@@ -326,7 +329,7 @@ export class Application {
             const hSegment = this.interpolate(xLeft, leftH[yDelta], xRight, rightH[yDelta])
 
             for (let x = xLeft; x <= xRight; ++x) {
-                const xDelta = Math.round(x - xLeft)
+                const xDelta = x - xLeft
                 IVec3.Mul(interpolatedColor, color, hSegment[xDelta]) // Subtraction required to bring the index down to 0..n
                 this.#putPixel(x, y, color)
             }
@@ -337,7 +340,7 @@ export class Application {
 
     render() {
         // this.colorUVTest()
-        // this.drawLineTest()
+        //  this.drawLineTest()
         // this.drawTriWireframeTest()
         //  this.drawCubeProjTest()
         // this.drawCubeProjTest2()
@@ -347,8 +350,8 @@ export class Application {
     run() {
         // this.clearScreen()
         this.render()
-        // this.updateScreen()
-        // requestAnimationFrame(() => this.run())
+        this.updateScreen()
+        requestAnimationFrame(() => this.run())
     }
 
 
@@ -401,13 +404,13 @@ export class Application {
 
     // TODO: Color
     renderObject(vertices: Vec3[], indices: IVec3[]) {
-        const viewportDistance = 1
+        const viewportDistance = 2
         const viewportWidth = 2
         const viewportHeight = 2
 
         const projectVertices = vertices.map((vertex) => this.viewportToCanvas(this.perspectiveProj(vertex, viewportDistance), viewportWidth, viewportHeight, this.width, this.height))
         for (const {r, g, b} of indices) {
-            this.drawTriangle(projectVertices[r], projectVertices[g], projectVertices[b], new IVec3(255, 255, 0))
+            this.drawTriangle(projectVertices[r], projectVertices[g], projectVertices[b], new IVec3(255, 0, 0))
             // this.drawTriangleWireframe(projectVertices[r], projectVertices[g], projectVertices[b], new IVec3(0, 255, 255))
         }
 
@@ -454,10 +457,58 @@ export class Application {
         this.drawLine(this.viewportToCanvas(this.perspectiveProj(vDf, viewportDist), 1, 1, this.width, this.height), this.viewportToCanvas(this.perspectiveProj(vDb, viewportDist), 1, 1, this.width, this.height), BLUE)
 
 
-        this.drawLine(this.perspectiveProj(vAf, viewportDist), this.perspectiveProj(vBf, viewportDist), BLUE)
-        this.drawLine(this.perspectiveProj(vBf, viewportDist), this.perspectiveProj(vCf, viewportDist), BLUE)
-        this.drawLine(this.perspectiveProj(vCf, viewportDist), this.perspectiveProj(vDf, viewportDist), BLUE)
-        this.drawLine(this.perspectiveProj(vDf, viewportDist), this.perspectiveProj(vAf, viewportDist), BLUE)
+        this.drawTriangle(this.viewportToCanvas(
+                this.perspectiveProj(vAb, viewportDist), 1, 1, this.width, this.height),
+            this.viewportToCanvas(this.perspectiveProj(vBb, viewportDist), 1, 1, this.width, this.height),
+            this.viewportToCanvas(this.perspectiveProj(vCb, viewportDist), 1, 1, this.width, this.height),
+            BLUE)
+        this.drawTriangle(this.viewportToCanvas(
+                this.perspectiveProj(vCb, viewportDist), 1, 1, this.width, this.height),
+            this.viewportToCanvas(this.perspectiveProj(vDb, viewportDist), 1, 1, this.width, this.height),
+            this.viewportToCanvas(this.perspectiveProj(vAb, viewportDist), 1, 1, this.width, this.height),
+            GREEN)
+
+        // Sides
+        this.drawTriangle(this.viewportToCanvas(
+                this.perspectiveProj(vAf, viewportDist), 1, 1, this.width, this.height),
+            this.viewportToCanvas(this.perspectiveProj(vBf, viewportDist), 1, 1, this.width, this.height),
+            this.viewportToCanvas(this.perspectiveProj(vAb, viewportDist), 1, 1, this.width, this.height),
+            new IVec3(255, 255, 255))
+
+        this.drawTriangle(this.viewportToCanvas(
+                this.perspectiveProj(vBf, viewportDist), 1, 1, this.width, this.height),
+            this.viewportToCanvas(this.perspectiveProj(vBb, viewportDist), 1, 1, this.width, this.height),
+            this.viewportToCanvas(this.perspectiveProj(vCf, viewportDist), 1, 1, this.width, this.height),
+           new IVec3(255, 0, 255))
+
+        this.drawTriangle(this.viewportToCanvas(
+                this.perspectiveProj(vCf, viewportDist), 1, 1, this.width, this.height),
+            this.viewportToCanvas(this.perspectiveProj(vDb, viewportDist), 1, 1, this.width, this.height),
+            this.viewportToCanvas(this.perspectiveProj(vDf, viewportDist), 1, 1, this.width, this.height),
+            new IVec3(255, 0, 255))
+
+        this.drawTriangle(this.viewportToCanvas(
+                this.perspectiveProj(vCb, viewportDist), 1, 1, this.width, this.height),
+            this.viewportToCanvas(this.perspectiveProj(vCf, viewportDist), 1, 1, this.width, this.height),
+            this.viewportToCanvas(this.perspectiveProj(vDb, viewportDist), 1, 1, this.width, this.height),
+            new IVec3(255, 255, 0))
+
+
+        this.drawTriangle(this.viewportToCanvas(
+            this.perspectiveProj(vAf, viewportDist), 1, 1, this.width, this.height),
+            this.viewportToCanvas(this.perspectiveProj(vBf, viewportDist), 1, 1, this.width, this.height),
+            this.viewportToCanvas(this.perspectiveProj(vCf, viewportDist), 1, 1, this.width, this.height),
+            RED)
+        this.drawTriangle(this.viewportToCanvas(
+                this.perspectiveProj(vCf, viewportDist), 1, 1, this.width, this.height),
+            this.viewportToCanvas(this.perspectiveProj(vDf, viewportDist), 1, 1, this.width, this.height),
+            this.viewportToCanvas(this.perspectiveProj(vAf, viewportDist), 1, 1, this.width, this.height),
+            BLUE)
+
+
+
+
+
     }
 
     private drawCubeProjTest() {
