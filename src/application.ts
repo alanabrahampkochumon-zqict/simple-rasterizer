@@ -248,7 +248,7 @@ export class Application {
         // Since HTML canvas start from 0, 0 at top to height width at bottom we need to translate the transformed point after scaling
         // with respect to the viewport
         const scaledX = vec.x / viewportWidth * canvasWidth
-        const scaledY = - vec.y / viewportHeight * canvasHeight
+        const scaledY = -vec.y / viewportHeight * canvasHeight
         return new Vec2(scaledX + canvasWidth / 2, scaledY + canvasHeight / 2)
     }
 
@@ -317,18 +317,45 @@ export class Application {
         const minY = a.y
         const maxY = c.y
         for (let y = minY; y <= maxY; ++y) {
-            const xLeft = left[y - minY]
-            const xRight = right[y - minY]
+            const yDelta = Math.round(y - minY)
+            let xLeft = left[yDelta]
+            let xRight = right[yDelta]
+
+            // TODO: Remove logs
+            // if (!xLeft && !xRight)
+            //     console.log("xLeft & xRight out of bounds!")
+            // else if (!xLeft)
+            // {
+            //     console.log("xLeft out of bounds!")
+            // }
+            // else if (!xRight)
+            // {
+            //     console.log("xRight out of bounds!")
+            // }
 
             // Interpolate the color intensities from left to right with for each y value with respect
             // to the interpolated left and right x values
-            const hSegment = this.interpolate(xLeft, leftH[y - minY], xRight, rightH[y - minY])
+            const hSegment = this.interpolate(xLeft, leftH[yDelta], xRight, rightH[yDelta])
 
             for (let x = xLeft; x <= xRight; ++x) {
+                const xDelta = Math.round(x - xLeft)
                 // Interpolate the color
-                IVec3.Mul(interpolatedColor, color, hSegment[x - xLeft]) // Subtraction required to bring the index down to 0..n
-                this.#putPixel(x, y, interpolatedColor)
-                // this.#putPixel(x, y, color)
+                // if (!(x-xLeft))
+                // {
+                //     console.log(`Color out of bound. Segment: ${hSegment[x - xLeft]}`)
+                //     this.#putPixel(x, y, new IVec3(255, 0, 0))
+                //     continue
+                // }
+                IVec3.Mul(interpolatedColor, color, hSegment[xDelta]) // Subtraction required to bring the index down to 0..n
+                // if (interpolatedColor.r < 25 && interpolatedColor.g < 25 && interpolatedColor.b < 25) {
+                //     console.log(`Missing color: Segment: ${hSegment[x - xLeft]}. xLeft: ${xLeft}`)
+                // }
+                // if (interpolatedColor.r === interpolatedColor.g &&interpolatedColor.g === interpolatedColor.b) {
+                //     console.log(`Missing color: Segment: ${hSegment[x - xLeft]}. xLeft: ${xLeft}`)
+                // }
+
+                // this.#putPixel(x, y, interpolatedColor)
+                this.#putPixel(x, y, color)
             }
         }
 
@@ -336,7 +363,7 @@ export class Application {
 
 
     render() {
-         // this.colorUVTest()
+        // this.colorUVTest()
         // this.drawLineTest()
         // this.drawTriWireframeTest()
         //  this.drawCubeProjTest()
@@ -401,7 +428,7 @@ export class Application {
 
     // TODO: Color
     renderObject(vertices: Vec3[], indices: IVec3[]) {
-        const viewportDistance = 10
+        const viewportDistance = 1
         const viewportWidth = 2
         const viewportHeight = 2
 
@@ -523,7 +550,7 @@ export class Application {
             new IVec3(2, 7, 3),
         ]
 
-        const translation= new Vec3(-1.5, 0, 7)
+        const translation = new Vec3(-1.5, 0, 7)
 
         this.renderObject(vertices.map(vertex => Vec3.Add(new Vec3(0, 0, 0), vertex, translation)), indices)
 
