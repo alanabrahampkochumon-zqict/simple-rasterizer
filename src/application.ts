@@ -214,7 +214,7 @@ export class Application {
 
             const values = this.interpolate(p0.x, p0.y, p1.x, p1.y)
             for (let x = p0.x; x <= p1.x; ++x) {
-                this.#putPixel(x, values[x - p0.x], color)
+                this.#putPixel(x, values[Math.round(x - p0.x)], color)
             }
         } else {
             // Line is verticalish
@@ -228,7 +228,7 @@ export class Application {
 
             const values = this.interpolate(p0.y, p0.x, p1.y, p1.x)
             for (let y = p0.y; y <= p1.y; ++y)
-                this.#putPixel(values[y - p0.y], y, color)
+                this.#putPixel(values[Math.round(y - p0.y)], y, color)
 
         }
     }
@@ -321,40 +321,13 @@ export class Application {
             let xLeft = left[yDelta]
             let xRight = right[yDelta]
 
-            // TODO: Remove logs
-            // if (!xLeft && !xRight)
-            //     console.log("xLeft & xRight out of bounds!")
-            // else if (!xLeft)
-            // {
-            //     console.log("xLeft out of bounds!")
-            // }
-            // else if (!xRight)
-            // {
-            //     console.log("xRight out of bounds!")
-            // }
-
             // Interpolate the color intensities from left to right with for each y value with respect
             // to the interpolated left and right x values
             const hSegment = this.interpolate(xLeft, leftH[yDelta], xRight, rightH[yDelta])
 
             for (let x = xLeft; x <= xRight; ++x) {
                 const xDelta = Math.round(x - xLeft)
-                // Interpolate the color
-                // if (!(x-xLeft))
-                // {
-                //     console.log(`Color out of bound. Segment: ${hSegment[x - xLeft]}`)
-                //     this.#putPixel(x, y, new IVec3(255, 0, 0))
-                //     continue
-                // }
                 IVec3.Mul(interpolatedColor, color, hSegment[xDelta]) // Subtraction required to bring the index down to 0..n
-                // if (interpolatedColor.r < 25 && interpolatedColor.g < 25 && interpolatedColor.b < 25) {
-                //     console.log(`Missing color: Segment: ${hSegment[x - xLeft]}. xLeft: ${xLeft}`)
-                // }
-                // if (interpolatedColor.r === interpolatedColor.g &&interpolatedColor.g === interpolatedColor.b) {
-                //     console.log(`Missing color: Segment: ${hSegment[x - xLeft]}. xLeft: ${xLeft}`)
-                // }
-
-                // this.#putPixel(x, y, interpolatedColor)
                 this.#putPixel(x, y, color)
             }
         }
