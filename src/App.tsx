@@ -8,13 +8,9 @@ function App() {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     if (canvasRef.current != null) {
         const app = new Application(canvasRef.current);
-        app.setClearColor(new IVec3(125, 125, 255));
+        app.setClearColor(new IVec3(27, 27, 27));
         app.clearScreen();
         app.run()
-
-        window.addEventListener("resize", () => {
-            app.resize();
-        });
 
         // TODO: Move to a dedicated panel
         // canvas.addEventListener("click", async () => {
@@ -27,8 +23,8 @@ function App() {
 //         })
     }
     return <div className="w-screen h-screen grid grid-cols-[1fr_400px]">
-        {/*<canvas ref={canvasRef} className="flex-1 bg-yellow-50"/>*/}
-        <canvas className="w-full h-full bg-yellow-300"/>
+        <canvas ref={canvasRef} className="w-full h-full"/>
+        {/*<canvas className="w-full h-full bg-yellow-300"/>*/}
         <Controls/>
     </div>
 }
