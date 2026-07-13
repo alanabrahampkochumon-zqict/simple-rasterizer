@@ -1,7 +1,16 @@
-# Simple Rasterizer
+# Scanline Rasterizer
 
-A simple software rasterizer made with TypeScript.
+A simple Scanline Rasterizer in React and TypeScript.
 
-## References
+## How to Run
 
-- [Computer Graphics From Scratch (Gabriel Gambetta)](https://learning.oreilly.com/library/view/computer-graphics-from)
+1. Clone the repository
+   `git clone https://github.com/alanabrahampkochumon-zqict/simple-rasterizer.git`
+2. Install the node packages
+   `npm install`
+3. Run the server
+   `npm run dev`
+
+## Acknowledgements
+
+Computer Graphics from Scratch by Gabriel Gambetta.

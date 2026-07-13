@@ -1,4 +1,4 @@
-import {IVec3} from "./math/ivec3"
+import {IVec3} from "./math/ivec3.ts"
 import {Vec2} from "./math/vec2.ts";
 import {Vec3} from "./math/vec3.ts";
 
@@ -410,8 +410,8 @@ export class Application {
 
         const projectVertices = vertices.map((vertex) => this.viewportToCanvas(this.perspectiveProj(vertex, viewportDistance), viewportWidth, viewportHeight, this.width, this.height))
         for (const {r, g, b} of indices) {
-            this.drawTriangle(projectVertices[r], projectVertices[g], projectVertices[b], new IVec3(255, 0, 0))
-            // this.drawTriangleWireframe(projectVertices[r], projectVertices[g], projectVertices[b], new IVec3(0, 255, 255))
+            this.drawTriangle(projectVertices[r], projectVertices[g], projectVertices[b], new IVec3(0, 255, 0))
+            // this.drawTriangleWireframe(projectVertices[r], projectVertices[g], projectVertices[b], new IVec3(0, 255, 0))
         }
 
         this.updateScreen()
