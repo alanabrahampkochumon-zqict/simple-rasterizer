@@ -33,8 +33,11 @@ export class Application {
     resize() {
         // Resize canvas with account for device pixel ratio
         const dpr = window.devicePixelRatio || 1;
+        console.log(`Canvas: ${this.canvas}`)
         const canvasRect = this.canvas.getBoundingClientRect();
 
+        console.log(`Bounding Client: ${canvasRect.width}, ${canvasRect.height}`)
+        // console.log(`(Width, Height): ${canvasRef.current.width}, ${canvasRef.current.height}`)
         this.canvas.height = canvasRect.height * dpr;
         this.canvas.width = canvasRect.width * dpr;
 
@@ -70,6 +73,11 @@ export class Application {
         x = Math.round(x)
         y = Math.round(y)
         const flatIndex = colorChannels * (y * this.width + x)
+
+        // Wrap around fix
+        if (x < 0 || y < 0 || x >= this.width || y >= this.height)
+            return
+            // console.log(`Out of bounds(x, y): (${x}, ${y})`)
 
         // Only color if the flatIndex is in-bounds
         // Since we need to move at least 3 places from the flatIndex,
@@ -110,7 +118,7 @@ export class Application {
         // since the drawing order doesn't matter
         // we can just swap them
         if (p0.x > p1.x) {
-            let temp = p0
+            const temp = p0
             p0 = p1
             p1 = temp
         }
@@ -132,7 +140,7 @@ export class Application {
 
     #drawLineV(p0: Vec2, p1: Vec2, color: IVec3) {
         if (p0.y > p1.y) {
-            let temp = p0
+            const temp = p0
             p0 = p1
             p1 = temp
         }
@@ -294,7 +302,7 @@ export class Application {
         const hABC = [...hAB, ...hBC]
 
         // Find the left and right side
-        const midpointIndex = Math.round(xAC.length / 2)
+        const midpointIndex = Math.floor(xAC.length / 2)
         // By comparing hte x values(interpolated values) for the middle of the sides we can determine which is the left side
         let left, right, leftH, rightH; // Int -> Intensity
         // Draw line for each x and y values
@@ -321,8 +329,8 @@ export class Application {
         // Both interpolation
         for (let y = minY; y <= maxY; ++y) {
             const yDelta = y - minY
-            let xLeft = left[yDelta]
-            let xRight = right[yDelta]
+            const xLeft = left[yDelta]
+            const xRight = right[yDelta]
 
             // Interpolate the color intensities from left to right with for each y value with respect
             // to the interpolated left and right x values
@@ -340,11 +348,11 @@ export class Application {
 
     render() {
         // this.colorUVTest()
-        //  this.drawLineTest()
+        this.drawLineTest()
         // this.drawTriWireframeTest()
-        //  this.drawCubeProjTest()
-        // this.drawCubeProjTest2()
-        //  this.drawCubeTest()
+        //this.drawCubeProjTest()
+        //this.drawCubeProjTest2()
+        //this.drawCubeTest()
     }
 
     run() {
@@ -479,7 +487,7 @@ export class Application {
                 this.perspectiveProj(vBf, viewportDist), 1, 1, this.width, this.height),
             this.viewportToCanvas(this.perspectiveProj(vBb, viewportDist), 1, 1, this.width, this.height),
             this.viewportToCanvas(this.perspectiveProj(vCf, viewportDist), 1, 1, this.width, this.height),
-           new IVec3(255, 0, 255))
+            new IVec3(255, 0, 255))
 
         this.drawTriangle(this.viewportToCanvas(
                 this.perspectiveProj(vCf, viewportDist), 1, 1, this.width, this.height),
@@ -495,7 +503,7 @@ export class Application {
 
 
         this.drawTriangle(this.viewportToCanvas(
-            this.perspectiveProj(vAf, viewportDist), 1, 1, this.width, this.height),
+                this.perspectiveProj(vAf, viewportDist), 1, 1, this.width, this.height),
             this.viewportToCanvas(this.perspectiveProj(vBf, viewportDist), 1, 1, this.width, this.height),
             this.viewportToCanvas(this.perspectiveProj(vCf, viewportDist), 1, 1, this.width, this.height),
             RED)
@@ -504,10 +512,6 @@ export class Application {
             this.viewportToCanvas(this.perspectiveProj(vDf, viewportDist), 1, 1, this.width, this.height),
             this.viewportToCanvas(this.perspectiveProj(vAf, viewportDist), 1, 1, this.width, this.height),
             BLUE)
-
-
-
-
 
     }
 
