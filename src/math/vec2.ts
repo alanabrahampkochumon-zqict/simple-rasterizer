@@ -34,4 +34,8 @@ export class Vec2 {
 
         return res
     }
+
+    toString(): string {
+        return `<x=${this.x}, y=${this.y}>`
+    }
 }

@@ -77,7 +77,6 @@ export class Application {
         // Wrap around fix
         if (x < 0 || y < 0 || x >= this.width || y >= this.height)
             return
-            // console.log(`Out of bounds(x, y): (${x}, ${y})`)
 
         // Only color if the flatIndex is in-bounds
         // Since we need to move at least 3 places from the flatIndex,
@@ -204,6 +203,8 @@ export class Application {
         return interpolatedValues
     }
 
+
+    // FIXNOTE: Indices must be rounded, else they can give undefined values
     drawLine(p0: Vec2, p1: Vec2, color: IVec3) {
         const deltaX = Math.abs(p1.x - p0.x)
         const deltaY = Math.abs(p1.y - p0.y)
@@ -222,7 +223,7 @@ export class Application {
 
             const values = this.interpolate(p0.x, p0.y, p1.x, p1.y)
             for (let x = p0.x; x <= p1.x; ++x) {
-                this.#putPixel(x, values[x - p0.x], color)
+                this.#putPixel(x, values[Math.round(x - p0.x)], color)
             }
         } else {
             // Line is verticalish
@@ -236,7 +237,7 @@ export class Application {
 
             const values = this.interpolate(p0.y, p0.x, p1.y, p1.x)
             for (let y = p0.y; y <= p1.y; ++y)
-                this.#putPixel(values[y - p0.y], y, color)
+                this.#putPixel(values[Math.round(y - p0.y)], y, color)
 
         }
     }
@@ -251,7 +252,20 @@ export class Application {
     perspectiveProj(vec: Vec3, d: number): Vec2 {
         // return new Vec2((vec.x / vec.z) * d, (vec.y / vec.z) * d)
         const zFactor = 1 / vec.z
-        return new Vec2(vec.x * zFactor * d, vec.y * zFactor * d);
+        return new Vec2(vec.x * d / vec.z, vec.y * d / vec.z);
+        // return new Vec2(vec.x * zFactor * d, vec.y * zFactor * d);
+    }
+
+    // TODO: Relabel
+    perspective(vec: Vec3, zFar: number, zNear: number, fov: number, aspect: number) {
+        const invTan = 1.0 / Math.tan(fov / 2);
+        const zFactor = zFar / (zFar - zNear);
+        const newX = aspect * invTan * vec.x;
+        const newY = invTan * vec.y;
+
+        const newZ = (vec.z - zNear) * zFactor
+
+        return new Vec2(newX, newY);
     }
 
     viewportToCanvas(vec: Vec2, viewportWidth: number, viewportHeight: number, canvasWidth: number, canvasHeight: number): Vec2 {
@@ -302,7 +316,7 @@ export class Application {
         const hABC = [...hAB, ...hBC]
 
         // Find the left and right side
-        const midpointIndex = Math.floor(xAC.length / 2)
+        const midpointIndex = Math.round(xAC.length / 2)
         // By comparing hte x values(interpolated values) for the middle of the sides we can determine which is the left side
         let left, right, leftH, rightH; // Int -> Intensity
         // Draw line for each x and y values
@@ -328,17 +342,23 @@ export class Application {
 
         // Both interpolation
         for (let y = minY; y <= maxY; ++y) {
-            const yDelta = y - minY
+            const yDelta = Math.round(y - minY)
             const xLeft = left[yDelta]
             const xRight = right[yDelta]
 
+
+            if (xLeft == undefined || xRight == undefined)
+                console.log(`Undefined: yDelta: ${yDelta} ${xLeft}, ${xRight}`)
             // Interpolate the color intensities from left to right with for each y value with respect
             // to the interpolated left and right x values
             const hSegment = this.interpolate(xLeft, leftH[yDelta], xRight, rightH[yDelta])
 
             for (let x = xLeft; x <= xRight; ++x) {
-                const xDelta = x - xLeft
+                const xDelta = Math.round(x - xLeft)
+
                 IVec3.Mul(interpolatedColor, color, hSegment[xDelta]) // Subtraction required to bring the index down to 0..n
+                if(xLeft - 627 < 0.1)
+                    this.#putPixel(x, y, new IVec3(255, 255, 255))
                 this.#putPixel(x, y, color)
             }
         }
@@ -348,18 +368,18 @@ export class Application {
 
     render() {
         // this.colorUVTest()
-        this.drawLineTest()
+        // this.drawLineTest()
         // this.drawTriWireframeTest()
         //this.drawCubeProjTest()
         //this.drawCubeProjTest2()
-        //this.drawCubeTest()
+        this.drawCubeTest()
     }
 
     run() {
         // this.clearScreen()
         this.render()
         this.updateScreen()
-        requestAnimationFrame(() => this.run())
+        // requestAnimationFrame(() => this.run())
     }
 
 
@@ -418,7 +438,7 @@ export class Application {
 
         const projectVertices = vertices.map((vertex) => this.viewportToCanvas(this.perspectiveProj(vertex, viewportDistance), viewportWidth, viewportHeight, this.width, this.height))
         for (const {r, g, b} of indices) {
-            this.drawTriangle(projectVertices[r], projectVertices[g], projectVertices[b], new IVec3(0, 255, 0))
+            this.drawTriangle(projectVertices[r], projectVertices[g], projectVertices[b], new IVec3(255, 255, 0))
             // this.drawTriangleWireframe(projectVertices[r], projectVertices[g], projectVertices[b], new IVec3(0, 255, 0))
         }
 
@@ -533,9 +553,45 @@ export class Application {
         const RED = new IVec3(120, 0, 0)
         const GREEN = new IVec3(0, 120, 0)
         const BLUE = new IVec3(0, 0, 120)
-        const viewportDist = 3
+        const viewportDist = 2
+
+        const fov = Math.PI / 3;
+        const aspect = this.width / this.height
+        const zFar = 10000
+        const zNear = 0.1
+
+
+        // console.log(`AF-BF\nFrom: ${this.perspective(vAf, zFar, zNear, fov, aspect)}\nTo: ${this.perspective(vBf, zFar, zNear, fov, aspect)}`)
+        // console.log(`BF-CF\nFrom: ${this.perspective(vBf, zFar, zNear, fov, aspect)}\nTo: ${this.perspective(vCf, zFar, zNear, fov, aspect)}`)
+        // console.log(`CF-DF\nFrom: ${this.perspective(vCf, zFar, zNear, fov, aspect)}\nTo: ${this.perspective(vDf, zFar, zNear, fov, aspect)}`)
+        // console.log(`DF-AF\nFrom: ${this.perspective(vDf, zFar, zNear, fov, aspect)}\nTo: ${this.perspective(vAf, zFar, zNear, fov, aspect)}\n\n`)
+        // )
+        //     console.log(`From: ${this.perspective(vAb, zFar, zNear, fov, aspect)}\nTo: ${this.perspective(vBb, zFar, zNear, fov, aspect)}`)
+        //     console.log(`From: ${this.perspective(vBb, zFar, zNear, fov, aspect)}\nTo: ${this.perspective(vCb, zFar, zNear, fov, aspect)}`)
+        //     console.log(`From: ${this.perspective(vCb, zFar, zNear, fov, aspect)}\nTo: ${this.perspective(vDb, zFar, zNear, fov, aspect)}`)
+        //     console.log(`From: ${this.perspective(vDb, zFar, zNear, fov, aspect)}\nTo: ${this.perspective(vAb, zFar, zNear, fov, aspect)}`)
+        // )
+        //     console.log(`From: ${this.perspective(vAf, zFar, zNear, fov, aspect)}\nTo: ${this.perspective(vAb, zFar, zNear, fov, aspect)}`)
+        //     console.log(`From: ${this.perspective(vBf, zFar, zNear, fov, aspect)}\nTo: ${this.perspective(vBb, zFar, zNear, fov, aspect)}`)
+        //     console.log(`From: ${this.perspective(vCf, zFar, zNear, fov, aspect)}\nTo: ${this.perspective(vCb, zFar, zNear, fov, aspect)}`)
+        //     console.log(`From: ${this.perspective(vDf, zFar, zNear, fov, aspect)}\nTo: ${this.perspective(vDb, zFar, zNear, fov, aspect)}`)
 
         //Note: drawLine takes 2d vector, but 3d vector works here since they have similar member variables
+        // this.drawLine(this.perspective(vAf, zFar, zNear, fov, aspect), this.perspective(vBf, zFar, zNear, fov, aspect), RED)
+        // this.drawLine(this.perspective(vBf, zFar, zNear, fov, aspect), this.perspective(vCf, zFar, zNear, fov, aspect), RED)
+        // this.drawLine(this.perspective(vCf, zFar, zNear, fov, aspect), this.perspective(vDf, zFar, zNear, fov, aspect), RED)
+        // this.drawLine(this.perspective(vDf, zFar, zNear, fov, aspect), this.perspective(vAf, zFar, zNear, fov, aspect), RED)
+        //
+        // this.drawLine(this.perspective(vAb, zFar, zNear, fov, aspect), this.perspective(vBb, zFar, zNear, fov, aspect), GREEN)
+        // this.drawLine(this.perspective(vBb, zFar, zNear, fov, aspect), this.perspective(vCb, zFar, zNear, fov, aspect), GREEN)
+        // this.drawLine(this.perspective(vCb, zFar, zNear, fov, aspect), this.perspective(vDb, zFar, zNear, fov, aspect), GREEN)
+        // this.drawLine(this.perspective(vDb, zFar, zNear, fov, aspect), this.perspective(vAb, zFar, zNear, fov, aspect), GREEN)
+        //
+        // this.drawLine(this.perspective(vAf, zFar, zNear, fov, aspect), this.perspective(vAb, zFar, zNear, fov, aspect), BLUE)
+        // this.drawLine(this.perspective(vBf, zFar, zNear, fov, aspect), this.perspective(vBb, zFar, zNear, fov, aspect), BLUE)
+        // this.drawLine(this.perspective(vCf, zFar, zNear, fov, aspect), this.perspective(vCb, zFar, zNear, fov, aspect), BLUE)
+        // this.drawLine(this.perspective(vDf, zFar, zNear, fov, aspect), this.perspective(vDb, zFar, zNear, fov, aspect), BLUE)
+        // TODO: Use full perspective projection
         this.drawLine(this.perspectiveProj(vAf, viewportDist), this.perspectiveProj(vBf, viewportDist), RED)
         this.drawLine(this.perspectiveProj(vBf, viewportDist), this.perspectiveProj(vCf, viewportDist), RED)
         this.drawLine(this.perspectiveProj(vCf, viewportDist), this.perspectiveProj(vDf, viewportDist), RED)
@@ -578,7 +634,7 @@ export class Application {
             new IVec3(2, 7, 3),
         ]
 
-        const translation = new Vec3(-1.5, 0, 7)
+        const translation = new Vec3(-1.5, 0, 8)
 
         this.renderObject(vertices.map(vertex => Vec3.Add(new Vec3(0, 0, 0), vertex, translation)), indices)
 
