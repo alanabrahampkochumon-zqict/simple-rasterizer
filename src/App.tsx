@@ -17,9 +17,8 @@ function App() {
             const app = new Application(canvasRef.current);
             app.setClearColor(new IVec3(27, 27, 27));
             app.clearScreen();
-            const translation = new Vec3(0, 0, 7)
             if (mesh != undefined)
-                app.renderObject(mesh.vertices.map(vertex => Vec3.Add(new Vec3(0, 0, 0), vertex, translation)), mesh.indices)
+                app.submitMesh(mesh)
             app.run()
 
 

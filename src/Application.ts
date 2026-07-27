@@ -1,6 +1,8 @@
 import {IVec3} from "./math/ivec3.ts"
 import {Vec2} from "./math/vec2.ts";
 import {Vec3} from "./math/vec3.ts";
+import type {MeshObject} from "./MeshObject.ts";
+import {Mat4} from "./math/mat4.ts";
 
 export class Application {
     canvas: HTMLCanvasElement;
@@ -9,6 +11,7 @@ export class Application {
     height: number;
     targetSurface: ImageData;
     clearColor: IVec3;
+    mesh: MeshObject
 
     constructor(canvas: HTMLCanvasElement) {
         this.canvas = canvas;
@@ -283,10 +286,12 @@ export class Application {
     }
 
     drawTriangle(p0: Vec2, p1: Vec2, p2: Vec2, color: IVec3) {
-        // Sort the vertices in the increasing order of y value
+        // Must round the vertices before interpolated to prevent artifacting
+        // due to incomplete interpolation
         p0 = new Vec2(Math.round(p0.x), Math.round(p0.y))
         p1 = new Vec2(Math.round(p1.x), Math.round(p1.y))
         p2 = new Vec2(Math.round(p2.x), Math.round(p2.y))
+        // Sort the vertices in the increasing order of y value
         const [a, b, c] = [p0, p1, p2].sort((a, b) => a.y - b.y)
         const h0 = .5, h1 = .25, h2 = 1.0 // TODO: Update Intensities at each vertex
 
@@ -368,17 +373,38 @@ export class Application {
     render() {
         // this.colorUVTest()
         //this.drawLineTest()
-        this.drawTriWireframeTest()
+        // this.drawTriWireframeTest()
         //this.drawCubeProjTest()
         //this.drawCubeProjTest2()
         //this.drawCubeTest()
     }
 
+
+    translation = 0.0;
+
+    rotate(output: Vec3, input: Vec3, angle: number) {
+        const c = Math.cos(angle)
+        const s = Math.sin(angle)
+
+        // output.x = input.x * c - input.y * s;
+        // output.y = input.x * s + input.y * c;
+        // output.z = input.z + 7;
+
+        output.x = input.x * c + input.z * s;
+        output.y = input.y;
+        output.z = (input.x * s + input.z * c )+ 7;
+        return output;
+    }
+
     run() {
-        // this.clearScreen()
-        this.render()
+        this.clearScreen()
+        const translationVec = new Vec3(0, 0, 7 + this.translation)
+        if (this.mesh != undefined)
+            this.renderObject(this.mesh.vertices.map(vertex => this.rotate(new Vec3(0, 0, 0), vertex, this.translation)), this.mesh.indices)
+        // this.render()
+        this.translation += 0.05
         this.updateScreen()
-        // requestAnimationFrame(() => this.run())
+        requestAnimationFrame(() => this.run())
     }
 
 
@@ -438,10 +464,14 @@ export class Application {
         const projectVertices = vertices.map((vertex) => this.viewportToCanvas(this.perspectiveProj(vertex, viewportDistance), viewportWidth, viewportHeight, this.width, this.height))
         for (const {r, g, b} of indices) {
             this.drawTriangle(projectVertices[r], projectVertices[g], projectVertices[b], new IVec3(255, 255, 0))
-             //this.drawTriangleWireframe(projectVertices[r], projectVertices[g], projectVertices[b], new IVec3(0, 255, 0))
+            //this.drawTriangleWireframe(projectVertices[r], projectVertices[g], projectVertices[b], new IVec3(0, 255, 0))
         }
 
         this.updateScreen()
+    }
+
+    submitMesh(mesh: MeshObject) {
+        this.mesh = mesh;
     }
 
 
