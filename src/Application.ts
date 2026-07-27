@@ -392,7 +392,7 @@ export class Application {
 
         output.x = input.x * c + input.z * s;
         output.y = input.y;
-        output.z = (input.x * s + input.z * c )+ 7;
+        output.z = (-input.x * s + input.z * c )+ 7;
         return output;
     }
 
