@@ -33,11 +33,7 @@ export class Application {
     resize() {
         // Resize canvas with account for device pixel ratio
         const dpr = window.devicePixelRatio || 1;
-        console.log(`Canvas: ${this.canvas}`)
         const canvasRect = this.canvas.getBoundingClientRect();
-
-        console.log(`Bounding Client: ${canvasRect.width}, ${canvasRect.height}`)
-        // console.log(`(Width, Height): ${canvasRef.current.width}, ${canvasRef.current.height}`)
         this.canvas.height = canvasRect.height * dpr;
         this.canvas.width = canvasRect.width * dpr;
 
@@ -67,29 +63,31 @@ export class Application {
      * @private
      */
     #putPixel(x: number, y: number, color: IVec3) {
-        const colorChannels = 4
-        // Without rounding the floating point math can throw off indices
-        // often times creating jittery lines, or nothing besides a dot
-        x = Math.round(x)
-        y = Math.round(y)
-        const flatIndex = colorChannels * (y * this.width + x)
-
         // Wrap around fix
         if (x < 0 || y < 0 || x >= this.width || y >= this.height)
             return
+
+        const colorChannels = 4
+        // Without rounding the floating point math can throw off indices
+        // often times creating jittery lines, or nothing besides a dot
+        // x = x | 0;
+        // y = y | 0; /// Less artifacting with round
+        x = Math.round(x)
+        y = Math.round(y)
+
+        const flatIndex = colorChannels * (y * this.width + x)
+
 
         // Only color if the flatIndex is in-bounds
         // Since we need to move at least 3 places from the flatIndex,
         // we are ensuring that there is enough indices eg: if size is 500 and flatIndex is 496
         // then we can use 496, 497, 498, 499(last index), but if its 497, then i + 3 is out-of-bounds
-        flatIndex < this.targetSurface.data.length - 3 && blitColor(this.targetSurface.data);
+        // flatIndex < this.targetSurface.data.length - 3 && blitColor(this.targetSurface.data);
 
-        function blitColor(buffer: ImageDataArray) {
-            buffer[flatIndex] = color.r;
-            buffer[flatIndex + 1] = color.g;
-            buffer[flatIndex + 2] = color.b;
-            buffer[flatIndex + 3] = 255; // Full opacity on alpha channel
-        }
+        this.targetSurface.data[flatIndex] = color.r;
+        this.targetSurface.data[flatIndex + 1] = color.g;
+        this.targetSurface.data[flatIndex + 2] = color.b;
+        this.targetSurface.data[flatIndex + 3] = 255; // Full opacity on alpha channel
 
     }
 
@@ -204,7 +202,9 @@ export class Application {
     }
 
 
-    // FIXNOTE: Indices must be rounded, else they can give undefined values
+    // FIX NOTE: Indices must be rounded, else they can give undefined values
+    // FIX NOTE: Rounding has been changed to | 0, inspired by Gabriel Gambetta's code
+    // While it gives a better accuracy, its not a 100% as there are still some artifacts.
     drawLine(p0: Vec2, p1: Vec2, color: IVec3) {
         const deltaX = Math.abs(p1.x - p0.x)
         const deltaY = Math.abs(p1.y - p0.y)
@@ -223,7 +223,7 @@ export class Application {
 
             const values = this.interpolate(p0.x, p0.y, p1.x, p1.y)
             for (let x = p0.x; x <= p1.x; ++x) {
-                this.#putPixel(x, values[Math.round(x - p0.x)], color)
+                this.#putPixel(x, values[(x - p0.x) | 0], color)
             }
         } else {
             // Line is verticalish
@@ -237,7 +237,7 @@ export class Application {
 
             const values = this.interpolate(p0.y, p0.x, p1.y, p1.x)
             for (let y = p0.y; y <= p1.y; ++y)
-                this.#putPixel(values[Math.round(y - p0.y)], y, color)
+                this.#putPixel(values[(y - p0.y) | 0], y, color)
 
         }
     }
@@ -250,13 +250,12 @@ export class Application {
      * @returns A 2D vector with perspective projection applied.
      */
     perspectiveProj(vec: Vec3, d: number): Vec2 {
-        // return new Vec2((vec.x / vec.z) * d, (vec.y / vec.z) * d)
         const zFactor = 1 / vec.z
-        return new Vec2(vec.x * d / vec.z, vec.y * d / vec.z);
-        // return new Vec2(vec.x * zFactor * d, vec.y * zFactor * d);
+        return new Vec2(vec.x * d * zFactor, vec.y * d * zFactor);
     }
 
-    // TODO: Relabel
+
+    // TODO: Relabel and use this
     perspective(vec: Vec3, zFar: number, zNear: number, fov: number, aspect: number) {
         const invTan = 1.0 / Math.tan(fov / 2);
         const zFactor = zFar / (zFar - zNear);
@@ -309,14 +308,14 @@ export class Application {
         // Join the shorter sides
         // But since we have one common value in both remove it from one of the interpolated arrays
         xAB.pop()
-        const xABC = [...xAB, ...xBC]
+        const xABC = xAB.concat(xBC)
 
         // Join shorter sides of color intensities
         hAB.pop()
         const hABC = [...hAB, ...hBC]
 
         // Find the left and right side
-        const midpointIndex = Math.round(xAC.length / 2)
+        const midpointIndex = (xAC.length / 2) | 0
         // By comparing hte x values(interpolated values) for the middle of the sides we can determine which is the left side
         let left, right, leftH, rightH; // Int -> Intensity
         // Draw line for each x and y values
@@ -342,23 +341,21 @@ export class Application {
 
         // Both interpolation
         for (let y = minY; y <= maxY; ++y) {
-            const yDelta = Math.round(y - minY)
-            const xLeft = left[yDelta]
-            const xRight = right[yDelta]
+            const yDelta = (y - minY) | 0
+            const xLeft = Math.floor(left[yDelta])
+            const xRight = Math.ceil(right[yDelta])
+            // const xLeft = Math.round(left[yDelta])
+            // const xRight = Math.round(right[yDelta])
 
-
-            if (xLeft == undefined || xRight == undefined)
-                console.log(`Undefined: yDelta: ${yDelta} ${xLeft}, ${xRight}`)
             // Interpolate the color intensities from left to right with for each y value with respect
             // to the interpolated left and right x values
             const hSegment = this.interpolate(xLeft, leftH[yDelta], xRight, rightH[yDelta])
 
             for (let x = xLeft; x <= xRight; ++x) {
-                const xDelta = Math.round(x - xLeft)
+                const xDelta = (x - xLeft) | 0
 
                 IVec3.Mul(interpolatedColor, color, hSegment[xDelta]) // Subtraction required to bring the index down to 0..n
-                if(xLeft - 627 < 0.1)
-                    this.#putPixel(x, y, new IVec3(255, 255, 255))
+
                 this.#putPixel(x, y, color)
             }
         }
@@ -368,11 +365,11 @@ export class Application {
 
     render() {
         // this.colorUVTest()
-        // this.drawLineTest()
-        // this.drawTriWireframeTest()
+        //this.drawLineTest()
+        this.drawTriWireframeTest()
         //this.drawCubeProjTest()
         //this.drawCubeProjTest2()
-        this.drawCubeTest()
+        //this.drawCubeTest()
     }
 
     run() {
@@ -419,7 +416,7 @@ export class Application {
         ]
         const color = new IVec3(10, 255, 255)
 
-        // this.drawTriangleWireframe(verts[0], verts[1], verts[2], color)
+        this.drawTriangleWireframe(verts[0], verts[1], verts[2], new IVec3(50, 255, 0))
         this.drawTriangle(verts[0], verts[1], verts[2], color)
     }
 
@@ -439,7 +436,7 @@ export class Application {
         const projectVertices = vertices.map((vertex) => this.viewportToCanvas(this.perspectiveProj(vertex, viewportDistance), viewportWidth, viewportHeight, this.width, this.height))
         for (const {r, g, b} of indices) {
             this.drawTriangle(projectVertices[r], projectVertices[g], projectVertices[b], new IVec3(255, 255, 0))
-            // this.drawTriangleWireframe(projectVertices[r], projectVertices[g], projectVertices[b], new IVec3(0, 255, 0))
+            // this.drawTriangleWireframe(projectVertices[r], projectVertices[g], projectVertices[b], new IVec3(255, 255, 0))
         }
 
         this.updateScreen()

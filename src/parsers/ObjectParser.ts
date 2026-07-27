@@ -2,7 +2,7 @@ import {MeshObject} from "../MeshObject.ts";
 import {Vec3} from "../math/vec3.ts";
 import {IVec3} from "../math/ivec3.ts";
 
-export async function parseObject(file: any): Promise<MeshObject> {
+export async function parseObject(file: File): Promise<MeshObject> {
     const meshObject = new MeshObject()
 
     const reader = new FileReader()
@@ -10,6 +10,7 @@ export async function parseObject(file: any): Promise<MeshObject> {
     if (reader === null) {
         throw new Error("There was an error instantiating the reader!")
     }
+    console.log(file)
     reader.readAsText(file)
 
     return new Promise((resolve, reject) => {
