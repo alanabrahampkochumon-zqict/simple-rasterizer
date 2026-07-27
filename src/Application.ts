@@ -74,9 +74,7 @@ export class Application {
         // Without rounding the floating point math can throw off indices
         // often times creating jittery lines, or nothing besides a dot
         x = x | 0;
-        y = y | 0; /// Less artifacting with round
-        // x = Math.round(x)
-        // y = Math.round(y)
+        y = y | 0;
 
         const flatIndex = colorChannels * (y * this.width + x)
 
@@ -288,9 +286,9 @@ export class Application {
     drawTriangle(p0: Vec2, p1: Vec2, p2: Vec2, color: IVec3) {
         // Must round the vertices before interpolated to prevent artifacting
         // due to incomplete interpolation
-        p0 = new Vec2(Math.round(p0.x), Math.round(p0.y))
-        p1 = new Vec2(Math.round(p1.x), Math.round(p1.y))
-        p2 = new Vec2(Math.round(p2.x), Math.round(p2.y))
+        p0 = new Vec2(p0.x | 0, p0.y | 0)
+        p1 = new Vec2(p1.x | 0, p1.y | 0)
+        p2 = new Vec2(p2.x | 0, p2.y | 0)
         // Sort the vertices in the increasing order of y value
         const [a, b, c] = [p0, p1, p2].sort((a, b) => a.y - b.y)
         const h0 = .5, h1 = .25, h2 = 1.0 // TODO: Update Intensities at each vertex
@@ -349,10 +347,8 @@ export class Application {
         // Both interpolation
         for (let y = minY; y <= maxY; ++y) {
             const yDelta = (y - minY) | 0
-            const xLeft = Math.floor(left[yDelta])
-            const xRight = Math.ceil(right[yDelta])
-            // const xLeft = Math.round(left[yDelta])
-            // const xRight = Math.round(right[yDelta])
+            const xLeft = (left[yDelta]) | 0
+            const xRight = (right[yDelta]) | 0
 
             // Interpolate the color intensities from left to right with for each y value with respect
             // to the interpolated left and right x values
