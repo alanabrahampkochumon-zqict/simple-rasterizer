@@ -70,10 +70,10 @@ export class Application {
         const colorChannels = 4
         // Without rounding the floating point math can throw off indices
         // often times creating jittery lines, or nothing besides a dot
-        // x = x | 0;
-        // y = y | 0; /// Less artifacting with round
-        x = Math.round(x)
-        y = Math.round(y)
+        x = x | 0;
+        y = y | 0; /// Less artifacting with round
+        // x = Math.round(x)
+        // y = Math.round(y)
 
         const flatIndex = colorChannels * (y * this.width + x)
 
@@ -191,11 +191,10 @@ export class Application {
         const interpolatedValues = []
 
         const m = (d1 - d0) / (i1 - i0)
-        let d = d0
 
         for (let i = i0; i <= i1; ++i) {
+            const d = d0 + m * (i - i0)
             interpolatedValues.push(d)
-            d = d0 + m * (i - i0)
         }
 
         return interpolatedValues
@@ -285,6 +284,9 @@ export class Application {
 
     drawTriangle(p0: Vec2, p1: Vec2, p2: Vec2, color: IVec3) {
         // Sort the vertices in the increasing order of y value
+        p0 = new Vec2(Math.round(p0.x), Math.round(p0.y))
+        p1 = new Vec2(Math.round(p1.x), Math.round(p1.y))
+        p2 = new Vec2(Math.round(p2.x), Math.round(p2.y))
         const [a, b, c] = [p0, p1, p2].sort((a, b) => a.y - b.y)
         const h0 = .5, h1 = .25, h2 = 1.0 // TODO: Update Intensities at each vertex
 
@@ -436,7 +438,7 @@ export class Application {
         const projectVertices = vertices.map((vertex) => this.viewportToCanvas(this.perspectiveProj(vertex, viewportDistance), viewportWidth, viewportHeight, this.width, this.height))
         for (const {r, g, b} of indices) {
             this.drawTriangle(projectVertices[r], projectVertices[g], projectVertices[b], new IVec3(255, 255, 0))
-            // this.drawTriangleWireframe(projectVertices[r], projectVertices[g], projectVertices[b], new IVec3(255, 255, 0))
+             //this.drawTriangleWireframe(projectVertices[r], projectVertices[g], projectVertices[b], new IVec3(0, 255, 0))
         }
 
         this.updateScreen()
