@@ -247,4 +247,54 @@ export class Mat4 {
             0, 0, 0, 1);
     }
 
+    /**
+     * Create a simple perspective projection matrix.
+     *
+     * @param d The distance to the projection plane.
+     */
+    static SimpleProj(d: number): Mat4 {
+        return new Mat4(
+            d, 0, 0, 0,
+            0, d, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1
+        )
+    }
+
+
+    /**
+     * Create a screen projection matrix.
+     *
+     * @param vw Viewport width
+     * @param vh Viewport height
+     * @param sw Screen width
+     * @param sh Screen height
+     */
+    static ScreenProj(vw: number, vh: number, sw: number, sh: number): Mat4 {
+        return new Mat4(
+            sw / vw, 0, 0, 0,
+            0, sh / vh, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1
+        );
+    }
+
+
+    /**
+     * Create a combined projection matrix that does the perspective projection and screen space projection in one go.
+     *
+     * @param d    The distance to the projection plane.
+     * @param vw Viewport width
+     * @param vh Viewport height
+     * @param sw Screen width
+     * @param sh Screen height
+     */
+    static PersScreenProj(d: number, vw: number, vh: number, sw: number, sh: number): Mat4 {
+        return new Mat4(
+            d * sw / vw, 0, 0, 0,
+            0, d * sh / vh, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1
+        );
+    }
 }
