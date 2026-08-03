@@ -141,6 +141,51 @@ export class Mat4 {
         return res;
     }
 
+    static MulM(res: Mat4, lhs: Mat4, rhs: Mat4) {
+        // First Row
+        // 0,0 * 0,0 + 0,1 * 1,0 + 0,2 * 2,0 + 0,3 * 3,0
+        res.data[0] = lhs.data[0] * rhs.data[0] + lhs.data[1] * rhs.data[4] + lhs.data[2] * rhs.data[8] + lhs.data[3] * rhs.data[12]
+        // 0,0 * 0,1 + 0,1 * 1,1 + 0,2 * 2,1 + 0,3 * 3,1
+        res.data[1] = lhs.data[0] * rhs.data[1] + lhs.data[1] * rhs.data[5] + lhs.data[2] * rhs.data[9] + lhs.data[3] * rhs.data[13]
+        // 0,0 * 0,2 + 0,1 * 1,2 + 0,2 * 2,2 + 0,3 * 3,2
+        res.data[2] = lhs.data[0] * rhs.data[2] + lhs.data[1] * rhs.data[6] + lhs.data[2] * rhs.data[10] + lhs.data[3] * rhs.data[14]
+        // 0,0 * 0,3 + 0,1 * 1,3 + 0,2 * 2,3 + 0,3 * 3,3
+        res.data[3] = lhs.data[0] * rhs.data[3] + lhs.data[1] * rhs.data[7] + lhs.data[2] * rhs.data[11] + lhs.data[3] * rhs.data[15]
+
+        // Second Row
+        // 1,0 * 0,0 + 1,1 * 1,0 + 1,2 * 2,0 + 1,3 * 3,0
+        res.data[4] = lhs.data[4] * rhs.data[0] + lhs.data[5] * rhs.data[4] + lhs.data[6] * rhs.data[8] + lhs.data[7] * rhs.data[12]
+        // 1,0 * 0,1 + 1,1 * 1,1 + 1,2 * 2,1 + 1,3 * 3,1
+        res.data[5] = lhs.data[4] * rhs.data[1] + lhs.data[5] * rhs.data[5] + lhs.data[6] * rhs.data[9] + lhs.data[7] * rhs.data[13]
+        // 1,0 * 0,2 + 1,1 * 1,2 + 1,2 * 2,2 + 1,3 * 3,2
+        res.data[6] = lhs.data[4] * rhs.data[2] + lhs.data[5] * rhs.data[6] + lhs.data[6] * rhs.data[10] + lhs.data[7] * rhs.data[14]
+        // 1,0 * 0,3 + 1,1 * 1,3 + 1,2 * 2,3 + 1,3 * 3,3
+        res.data[7] = lhs.data[4] * rhs.data[3] + lhs.data[5] * rhs.data[7] + lhs.data[6] * rhs.data[11] + lhs.data[7] * rhs.data[15]
+
+        // Third Row
+        // 2,0 * 0,0 + 2,1 * 1,0 + 2,2 * 2,0 + 2,3 * 3,0
+        res.data[8] = lhs.data[8] * rhs.data[0] + lhs.data[9] * rhs.data[4] + lhs.data[10] * rhs.data[8] + lhs.data[11] * rhs.data[12]
+        // 2,0 * 0,1 + 2,1 * 1,1 + 2,2 * 2,1 + 2,3 * 3,1
+        res.data[9] = lhs.data[8] * rhs.data[1] + lhs.data[9] * rhs.data[5] + lhs.data[10] * rhs.data[9] + lhs.data[11] * rhs.data[13]
+        // 2,0 * 0,2 + 2,1 * 1,2 + 2,2 * 2,2 + 2,3 * 3,2
+        res.data[10] = lhs.data[8] * rhs.data[2] + lhs.data[9] * rhs.data[6] + lhs.data[10] * rhs.data[10] + lhs.data[11] * rhs.data[14]
+        // 2,0 * 0,3 + 2,1 * 1,3 + 2,2 * 2,3 + 2,3 * 3,3
+        res.data[11] = lhs.data[8] * rhs.data[3] + lhs.data[9] * rhs.data[7] + lhs.data[10] * rhs.data[11] + lhs.data[11] * rhs.data[15]
+
+        // Fourth Row
+        // 3,0 * 0,0 + 3,1 * 1,0 + 3,2 * 2,0 + 3,3 * 3,0
+        res.data[12] = lhs.data[12] * rhs.data[0] + lhs.data[13] * rhs.data[4] + lhs.data[14] * rhs.data[8] + lhs.data[15] * rhs.data[12]
+        // 3,0 * 0,1 + 3,1 * 1,1 + 3,2 * 2,1 + 3,3 * 3,1
+        res.data[13] = lhs.data[12] * rhs.data[1] + lhs.data[13] * rhs.data[5] + lhs.data[14] * rhs.data[9] + lhs.data[15] * rhs.data[13]
+        // 3,0 * 0,2 + 3,1 * 1,2 + 3,2 * 2,2 + 3,3 * 3,2
+        res.data[14] = lhs.data[12] * rhs.data[2] + lhs.data[13] * rhs.data[6] + lhs.data[14] * rhs.data[10] + lhs.data[15] * rhs.data[14]
+        // 3,0 * 0,3 + 3,1 * 1,3 + 3,2 * 2,3 + 3,3 * 3,3
+        res.data[15] = lhs.data[12] * rhs.data[3] + lhs.data[13] * rhs.data[7] + lhs.data[14] * rhs.data[11] + lhs.data[15] * rhs.data[15]
+
+        return res;
+    }
+
+
     // Rotation must be in radians
     static RotX(angle: number): Mat4 {
         const c = Math.cos(angle)
