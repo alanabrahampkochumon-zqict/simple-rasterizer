@@ -297,4 +297,8 @@ export class Mat4 {
             0, 0, 0, 1
         );
     }
+
+    // TODO: Store camera transform and viewport transform in app
+    // TODO: Store model transform in model(as matrix precomputed)
+    // TODO: Add method to update the transformation matrix.
 }
