@@ -2,7 +2,7 @@ import {IVec3} from "./math/ivec3.ts"
 import {Vec2} from "./math/vec2.ts";
 import {Vec3} from "./math/vec3.ts";
 import {MeshObject} from "./MeshObject.ts";
-import {ModelInstance, Scene} from "./Scene.ts";
+import {ModelInstance, Scene, Transform} from "./Scene.ts";
 
 export class Application {
     canvas: HTMLCanvasElement;
@@ -696,8 +696,8 @@ export class Application {
         ]
 
         const scene = new Scene(vertices, [
-            new ModelInstance(indices, new Vec3(-2, -2, 5), new IVec3(128, 255, 25), "Cube 1"),
-            new ModelInstance(indices, new Vec3(5, 5, 7), new IVec3(0, 128, 255), "Cube 2")
+            new ModelInstance(indices, new Transform(new Vec3(-2, -2, 5)), new IVec3(128, 255, 25), "Cube 1"),
+            new ModelInstance(indices, new Transform(new Vec3(5, 5, 7)), new IVec3(0, 128, 255), "Cube 2")
         ])
 
         this.renderScene(scene);
@@ -726,7 +726,7 @@ export class Application {
             const triangleVerts = []
             for (const index of [triangle.x, triangle.y, triangle.z]) {
                 const translatedVec = new Vec3(0, 0, 0);
-                Vec3.Add(translatedVec, vertices[index], instance.position)
+                Vec3.Add(translatedVec, vertices[index], instance.transform.position)
                 triangleVerts.push(this.viewportToCanvas(this.perspectiveProj(translatedVec, 4), 10, 10, this.width, this.height))
             }
             // console.log("Triangle Verts: ", triangleVerts)
