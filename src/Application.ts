@@ -1,8 +1,8 @@
 import {IVec3} from "./math/ivec3.ts"
 import {Vec2} from "./math/vec2.ts";
 import {Vec3} from "./math/vec3.ts";
-import type {MeshObject} from "./MeshObject.ts";
-import {Mat4} from "./math/mat4.ts";
+import {MeshObject} from "./MeshObject.ts";
+import {ModelInstance, Scene} from "./Scene.ts";
 
 export class Application {
     canvas: HTMLCanvasElement;
@@ -388,19 +388,22 @@ export class Application {
 
         output.x = input.x * c + input.z * s;
         output.y = input.y;
-        output.z = (-input.x * s + input.z * c )+ 7;
+        output.z = (-input.x * s + input.z * c) + 7;
         return output;
     }
 
     run() {
         this.clearScreen()
-        const translationVec = new Vec3(0, 0, 7 + this.translation)
-        if (this.mesh != undefined)
-            this.renderObject(this.mesh.vertices.map(vertex => this.rotate(new Vec3(0, 0, 0), vertex, this.translation)), this.mesh.indices)
-        // this.render()
-        this.translation += 0.05
+        // TODO: Add back
+        // const translationVec = new Vec3(0, 0, 7 + this.translation)
+        // if (this.mesh != undefined)
+        //     this.renderObject(this.mesh.vertices.map(vertex => this.rotate(new Vec3(0, 0, 0), vertex, this.translation)), this.mesh.indices)
+        // // this.render()
+        // this.translation += 0.05
+        this.testSceneRender()
         this.updateScreen()
-        requestAnimationFrame(() => this.run())
+        // requestAnimationFrame(() => this.run())
+
     }
 
 
@@ -663,5 +666,71 @@ export class Application {
 
         this.renderObject(vertices.map(vertex => Vec3.Add(new Vec3(0, 0, 0), vertex, translation)), indices)
 
+    }
+
+    testSceneRender() {
+        const vertices = [
+            new Vec3(1, 1, 1),
+            new Vec3(-1, 1, 1),
+            new Vec3(-1, -1, 1),
+            new Vec3(1, -1, 1),
+            new Vec3(1, 1, -1),
+            new Vec3(-1, 1, -1),
+            new Vec3(-1, -1, -1),
+            new Vec3(1, -1, -1),
+        ]
+
+        const indices = [
+            new Vec3(0, 1, 2),
+            new Vec3(0, 2, 3),
+            new Vec3(4, 0, 3),
+            new Vec3(4, 3, 7),
+            new Vec3(5, 4, 7),
+            new Vec3(5, 7, 6),
+            new Vec3(1, 5, 6),
+            new Vec3(1, 6, 2),
+            new Vec3(4, 5, 1),
+            new Vec3(4, 1, 0),
+            new Vec3(2, 6, 7),
+            new Vec3(2, 7, 3),
+        ]
+
+        const scene = new Scene(vertices, [
+            new ModelInstance(indices, new Vec3(-2, -2, 5), new IVec3(128, 255, 25), "Cube 1"),
+            new ModelInstance(indices, new Vec3(5, 5, 7), new IVec3(0, 128, 255), "Cube 2")
+        ])
+
+        this.renderScene(scene);
+    }
+
+
+    /**
+     * Render a 3D scene to the canvas.
+     *
+     * @param scene The scene to render.
+     */
+    renderScene(scene: Scene) {
+        for (const model of scene.instances) {
+            this.renderInstance(scene.vertices, model);
+        }
+    }
+
+    /**
+     * Render a single instance from the scene.
+     * @param vertices The whole scene vertices.
+     * @param instance Each instance from the scene.
+     */
+    renderInstance(vertices: Vec3[], instance: ModelInstance) {
+
+        for (const triangle of instance.triangleIndices) {
+            const triangleVerts = []
+            for (const index of [triangle.x, triangle.y, triangle.z]) {
+                const translatedVec = new Vec3(0, 0, 0);
+                Vec3.Add(translatedVec, vertices[index], instance.position)
+                triangleVerts.push(this.viewportToCanvas(this.perspectiveProj(translatedVec, 4), 10, 10, this.width, this.height))
+            }
+            // console.log("Triangle Verts: ", triangleVerts)
+            this.drawTriangle(triangleVerts[0], triangleVerts[1], triangleVerts[2], instance.color);
+        }
     }
 }
