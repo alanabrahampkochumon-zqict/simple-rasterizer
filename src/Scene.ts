@@ -1,5 +1,6 @@
 import {Vec3} from "./math/vec3.ts";
 import {IVec3} from "./math/ivec3.ts";
+import {Mat4} from "./math/mat4.ts";
 
 
 export class Scene {
@@ -50,5 +51,12 @@ export class Transform {
         this.position = position
         this.orientation = orientation
         this.scale = scale
+    }
+
+    // Applies transformation in translation, rotation, scale
+    apply(vertex: Vec3): Vec3 {
+        const transformed = new Vec3(0, 0, 0);
+        Vec3.Add(transformed, vertex, this.position)
+        Mat4.Mul(Mat4.I(), Mat4.Mul(Mat4.I(), Mat4.RotX(this.orientation.x), Mat4.RotY(this.orientation.y)), Mat4.RotZ(this.orientation.z))
     }
 }

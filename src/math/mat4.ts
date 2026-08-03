@@ -195,4 +195,11 @@ export class Mat4 {
         )
     }
 
+    static I() {
+        return new Mat4(1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1);
+    }
+
 }
