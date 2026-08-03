@@ -56,8 +56,11 @@ export class Transform {
 
     // Applies transformation in translation, rotation, scale
     apply(vertex: Vec3): Vec3 {
-        const transformed = new Vec3(0, 0, 0);
-        Vec3.Add(transformed, vertex, this.position)
+        // Apply scale
+        const scaledVec = new Vec3(0, 0, 0);
+        Vec3.Mul(scaledVec, vertex, this.scale);
+
+        // Apply Rotation
         const xRotMat = Mat3.rotX(this.orientation.x);
         const yRotMat = Mat3.rotY(this.orientation.y);
         const zRotMat = Mat3.rotZ(this.orientation.z);
@@ -66,9 +69,10 @@ export class Transform {
         Mat3.multiply(rotMat, Mat3.multiply(Mat3.I(), xRotMat, yRotMat), zRotMat)
 
         const rotVec = new Vec3(0, 0, 0);
-        Mat3.multiplyVec(rotVec, rotMat, transformed);
+        Mat3.multiplyVec(rotVec, rotMat, scaledVec);
 
-        const scaledVec = new Vec3(0, 0, 0);
-        return Vec3.Mul(scaledVec, rotVec, this.scale)
+        // Apply translation
+        const translatedVec = new Vec3(0, 0, 0);
+        return Vec3.Add(translatedVec, rotVec, this.position)
     }
 }
