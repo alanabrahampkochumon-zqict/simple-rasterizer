@@ -696,8 +696,8 @@ export class Application {
         ]
 
         const scene = new Scene(vertices, [
-            new ModelInstance(indices, new Transform(new Vec3(-2, -2, 5)), new IVec3(128, 255, 25), "Cube 1"),
-            new ModelInstance(indices, new Transform(new Vec3(5, 5, 7)), new IVec3(0, 128, 255), "Cube 2")
+            new ModelInstance(indices, new Transform(new Vec3(-2, -2, 5), new Vec3(0, 1, 0), 0.5), new IVec3(128, 255, 25), "Cube 1"),
+            new ModelInstance(indices, new Transform(new Vec3(5, 5, 7), new Vec3(0.1, 0, 0), 1.25), new IVec3(0, 128, 255), "Cube 2")
         ])
 
         this.renderScene(scene);
@@ -725,8 +725,9 @@ export class Application {
         for (const triangle of instance.triangleIndices) {
             const triangleVerts = []
             for (const index of [triangle.x, triangle.y, triangle.z]) {
-                const translatedVec = new Vec3(0, 0, 0);
-                Vec3.Add(translatedVec, vertices[index], instance.transform.position)
+                // const translatedVec = new Vec3(0, 0, 0);
+                // Vec3.Add(translatedVec, vertices[index], instance.transform.position)
+                const translatedVec = instance.transform.apply(vertices[index])
                 triangleVerts.push(this.viewportToCanvas(this.perspectiveProj(translatedVec, 4), 10, 10, this.width, this.height))
             }
             // console.log("Triangle Verts: ", triangleVerts)

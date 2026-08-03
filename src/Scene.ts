@@ -1,6 +1,7 @@
 import {Vec3} from "./math/vec3.ts";
 import {IVec3} from "./math/ivec3.ts";
 import {Mat4} from "./math/mat4.ts";
+import {Mat3} from "./math/Mat3.ts";
 
 
 export class Scene {
@@ -57,6 +58,17 @@ export class Transform {
     apply(vertex: Vec3): Vec3 {
         const transformed = new Vec3(0, 0, 0);
         Vec3.Add(transformed, vertex, this.position)
-        Mat4.Mul(Mat4.I(), Mat4.Mul(Mat4.I(), Mat4.RotX(this.orientation.x), Mat4.RotY(this.orientation.y)), Mat4.RotZ(this.orientation.z))
+        const xRotMat = Mat3.rotX(this.orientation.x);
+        const yRotMat = Mat3.rotY(this.orientation.y);
+        const zRotMat = Mat3.rotZ(this.orientation.z);
+
+        const rotMat = Mat3.I()
+        Mat3.multiply(rotMat, Mat3.multiply(Mat3.I(), xRotMat, yRotMat), zRotMat)
+
+        const rotVec = new Vec3(0, 0, 0);
+        Mat3.multiplyVec(rotVec, rotMat, transformed);
+
+        const scaledVec = new Vec3(0, 0, 0);
+        return Vec3.Mul(scaledVec, rotVec, this.scale)
     }
 }

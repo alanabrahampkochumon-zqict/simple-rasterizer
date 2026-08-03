@@ -1,5 +1,6 @@
-import {fixedW} from "../lib/Utils.js";
-import type {Vec3} from "../vectors/Vec3.ts";
+import {fixedW} from "./Utils.ts";
+import type {Vec3} from "./vec3.ts";
+
 
 /**
  * Definition of a 3x3 square matrix.
@@ -182,9 +183,9 @@ export class Mat3 {
      * @returns The out matrix to enable operation composition.
      */
     static multiplyVec(out: Vec3, mat: Mat3, vec: Vec3): Vec3 {
-        out.buffer[0] = mat.buffer[0] * vec.buffer[0] + mat.buffer[3] * vec.buffer[1] + mat.buffer[6] * vec.buffer[2];
-        out.buffer[1] = mat.buffer[1] * vec.buffer[0] + mat.buffer[4] * vec.buffer[1] + mat.buffer[7] * vec.buffer[2];
-        out.buffer[2] = mat.buffer[2] * vec.buffer[0] + mat.buffer[5] * vec.buffer[1] + mat.buffer[8] * vec.buffer[2];
+        out.x = mat.buffer[0] * vec.x + mat.buffer[3] * vec.y + mat.buffer[6] * vec.z;
+        out.y = mat.buffer[1] * vec.x + mat.buffer[4] * vec.y + mat.buffer[7] * vec.z;
+        out.z = mat.buffer[2] * vec.x + mat.buffer[5] * vec.y + mat.buffer[8] * vec.z;
         return out;
     }
 
@@ -397,6 +398,14 @@ export class Mat3 {
         return new Mat3(
             1, 0, x,
             0, 1, y,
+            0, 0, 1
+        )
+    }
+
+    static I(): Mat3 {
+        return new Mat3(
+            1, 0, 0,
+            0, 1, 0,
             0, 0, 1
         )
     }
