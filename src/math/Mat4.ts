@@ -108,11 +108,64 @@ export class Mat4 {
 
         resVec.x = this.data[0] * vec.x + this.data[4] * vec.y + this.data[8] * vec.z + this.data[12] * vec.w;
         resVec.y = this.data[1] * vec.x + this.data[5] * vec.y + this.data[9] * vec.z + this.data[13] * vec.w;
-        resVec.z = this.data[2] * vec.x + this.data[6] * vec.y + this.data[10] *vec.z + this.data[14] * vec.w;
-        resVec.w = this.data[3] * vec.x + this.data[7] * vec.y + this.data[11] *vec.z + this.data[15] * vec.w;
+        resVec.z = this.data[2] * vec.x + this.data[6] * vec.y + this.data[10] * vec.z + this.data[14] * vec.w;
+        resVec.w = this.data[3] * vec.x + this.data[7] * vec.y + this.data[11] * vec.z + this.data[15] * vec.w;
 
         return resVec;
 
+    }
+
+
+    /**
+     * Construct a rotation matrix around the x-axis.
+     * @param angle The angle of rotation in radians.
+     *
+     * @return The rotation matrix.
+     */
+    static rotX(angle: number): Mat4 {
+        const c = Math.cos(angle)
+        const s = Math.sin(angle)
+        return new Mat4(
+            1, 0, 0, 0,
+            0, c, -s, 0,
+            0, s, c, 0,
+            0, 0, 0, 1
+        )
+    }
+
+    /**
+     * Construct a rotation matrix around the y-axis.
+     * @param angle The angle of rotation in radians.
+     *
+     * @return The rotation matrix.
+     */
+    static rotY(angle: number): Mat4 {
+        const c = Math.cos(angle)
+        const s = Math.sin(angle)
+        return new Mat4(
+            c, 0, s, 0,
+            0, 1, 0, 0,
+            -s, 0, c, 0,
+            0, 0, 0, 1
+        )
+    }
+
+
+    /**
+     * Construct a rotation matrix around the z-axis.
+     * @param angle The angle of rotation in radians.
+     *
+     * @return The rotation matrix.
+     */
+    static rotZ(angle: number): Mat4 {
+        const c = Math.cos(angle)
+        const s = Math.sin(angle)
+        return new Mat4(
+            c, -s, 0, 0,
+            s, c, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1
+        )
     }
 
 

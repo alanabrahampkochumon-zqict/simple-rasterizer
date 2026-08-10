@@ -31,6 +31,191 @@ describe("Mat4 Multiplication Tests", () => {
     })
 })
 
+
+//
+// describe("Mat4: RotationY", () => {
+//     const pi = Math.PI
+//     const testCases: Record<number, Mat4>[] = [
+//         {0: new Mat4(1, 0, 0, 0, 1, 0, 0, 0, 1)},
+//         {[pi / 2]: new Mat4(0, 0, 1, 0, 1, 0, -1, 0, 0)},
+//         {[-pi / 2]: new Mat4(0, 0, -1, 0, 1, 0, 1, 0, 0)},
+//         {[pi]: new Mat4(-1, 0, 0, 0, 1, 0, 0, 0, -1)},
+//         {[2 * pi]: new Mat4(1, 0, 0, 0, 1, 0, 0, 0, 1)}
+//     ];
+//
+//     test.each(testCases)("return correct Mat4 for angle %s", (testPack) => {
+//         const [angle, expectedMatrix] = Object.entries(testPack)[0]
+//         const rotMat = Mat4.rotY(parseFloat(angle))
+//
+//         for (let i = 0; i < 9; ++i) {
+//             expect(rotMat.buffer[i]).toBeCloseTo(expectedMatrix.buffer[i], 5)
+//         }
+//     })
+//
+// })
+
+
+describe("Mat4 rotation", () => {
+    const pi = Math.PI
+
+    const testCasesX: Record<number, Mat4>[] = [
+        {
+            0: new Mat4(
+                1, 0, 0, 0,
+                0, 1, 0, 0,
+                0, 0, 1, 0,
+                0, 0, 0, 1
+            )
+        },
+        {
+            [pi / 2]: new Mat4(
+                1, 0, 0, 0,
+                0, 0, -1, 0,
+                0, 1, 0, 0,
+                0, 0, 0, 1
+            )
+        }
+        ,
+        {
+            [-pi / 2]: new Mat4(
+                1, 0, 0, 0,
+                0, 0, 1, 0,
+                0, -1, 0, 0,
+                0, 0, 0, 1
+            )
+        }
+        ,
+        {
+            [pi]: new Mat4(
+                1, 0, 0, 0,
+                0, -1, 0, 0,
+                0, 0, -1, 0,
+                0, 0, 0, 1
+            )
+        }
+        ,
+        {
+            [2 * pi]: new Mat4(
+                1, 0, 0, 0,
+                0, 1, 0, 0,
+                0, 0, 1, 0,
+                0, 0, 0, 1
+            )
+        }];
+
+    const testCasesY: Record<number, Mat4>[] = [
+        {
+            0: new Mat4(
+                1, 0, 0, 0,
+                0, 1, 0, 0,
+                0, 0, 1, 0,
+                0, 0, 0, 1
+            )
+        },
+        {
+            [pi / 2]: new Mat4(
+                0, 0, 1, 0,
+                0, 1, 0, 0,
+                -1, 0, 0, 0,
+                0, 0, 0, 1
+            )
+        }
+        ,
+        {
+            [-pi / 2]: new Mat4(
+                0, 0, -1, 0,
+                0, 1, 0, 0,
+                1, 0, 0, 0,
+                0, 0, 0, 1
+            )
+        }
+        ,
+        {
+            [pi]: new Mat4(
+                -1, 0, 0, 0,
+                0, 1, 0, 0,
+                0, 0, -1, 0,
+                0, 0, 0, 1
+            )
+        }
+        ,
+        {
+            [2 * pi]: new Mat4(
+                1, 0, 0, 0,
+                0, 1, 0, 0,
+                0, 0, 1, 0,
+                0, 0, 0, 1
+            )
+        }];
+
+    const testCasesZ: Record<number, Mat4>[] = [
+        {
+            0: new Mat4(
+                1, 0, 0, 0,
+                0, 1, 0, 0,
+                0, 0, 1, 0,
+                0, 0, 0, 1
+            )
+        },
+        {
+            [pi / 2]: new Mat4(
+                0, -1, 0, 0,
+                1, 0, 0, 0,
+                0, 0, 1, 0,
+                0, 0, 0, 1
+            )
+        }
+        ,
+        {
+            [-pi / 2]: new Mat4(
+                0, 1, 0, 0,
+                -1, 0, 0, 0,
+                0, 0, 1, 0,
+                0, 0, 0, 1
+            )
+        }
+        ,
+        {
+            [pi]: new Mat4(
+                -1, 0, 0, 0,
+                0, -1, 0, 0,
+                0, 0, 1, 0,
+                0, 0, 0, 1
+            )
+        }
+        ,
+        {
+            [2 * pi]: new Mat4(
+                1, 0, 0, 0,
+                0, 1, 0, 0,
+                0, 0, 1, 0,
+                0, 0, 0, 1
+            )
+        }];
+
+    test.each(testCasesX)("rotX returns valid rotation matrix around x for %s", (testPack) => {
+        const [angle, expectedMatrix] = Object.entries(testPack)[0]
+        const rotMat = Mat4.rotX(parseFloat(angle))
+
+        expectMatrixEq(rotMat, expectedMatrix)
+    })
+
+    test.each(testCasesY)("rotY returns valid rotation matrix around y for %s", (testPack) => {
+        const [angle, expectedMatrix] = Object.entries(testPack)[0]
+        const rotMat = Mat4.rotY(parseFloat(angle))
+
+        expectMatrixEq(rotMat, expectedMatrix)
+    })
+
+
+    test.each(testCasesZ)("rotZ returns valid rotation matrix around z for %s", (testPack) => {
+        const [angle, expectedMatrix] = Object.entries(testPack)[0]
+        const rotMat = Mat4.rotZ(parseFloat(angle))
+
+        expectMatrixEq(rotMat, expectedMatrix)
+    })
+})
+
 function expectVecEq(a: Vec4, b: Vec4) {
     expect(a.x).toStrictEqual(b.x)
     expect(a.y).toStrictEqual(b.y)
@@ -41,7 +226,7 @@ function expectVecEq(a: Vec4, b: Vec4) {
 function expectMatrixEq(a: Mat4, b: Mat4) {
     for (let i = 0; i < 4; ++i) {
         for (let j = 0; j < 4; ++j) {
-            expect(a.get(i, j)).toStrictEqual(b.get(i, j))
+            expect(a.get(i, j)).toBeCloseTo(b.get(i, j))
         }
     }
 }
