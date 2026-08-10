@@ -3,6 +3,48 @@ import {Mat4} from "../../src/math/Mat4";
 import {Vec4} from "../../src/math/Vec4";
 
 
+describe("Mat4 Ctor", () => {
+    test("Ctor initializes a matrix with passed-in values in a column major order", () => {
+        const mat = new Mat4(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)
+
+        expect(mat.data[0]).toStrictEqual(1)
+        expect(mat.data[1]).toStrictEqual(5)
+        expect(mat.data[2]).toStrictEqual(9)
+        expect(mat.data[3]).toStrictEqual(13)
+
+        expect(mat.data[4]).toStrictEqual(2)
+        expect(mat.data[5]).toStrictEqual(6)
+        expect(mat.data[6]).toStrictEqual(10)
+        expect(mat.data[7]).toStrictEqual(14)
+
+        expect(mat.data[8]).toStrictEqual(3)
+        expect(mat.data[9]).toStrictEqual(7)
+        expect(mat.data[10]).toStrictEqual(11)
+        expect(mat.data[11]).toStrictEqual(15)
+
+        expect(mat.data[12]).toStrictEqual(4)
+        expect(mat.data[13]).toStrictEqual(8)
+        expect(mat.data[14]).toStrictEqual(12)
+        expect(mat.data[15]).toStrictEqual(16)
+    })
+
+    test("PersScreenProj returns a projection matrix", () => {
+        const d = 5;
+        const vw = 2;
+        const vh = 3;
+        const sw = 1000
+        const sh = 2000
+        const expectedMat = new Mat4(
+            2500, 0, 0, 0,
+            0, 3333.3333, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1
+        )
+        expectMatrixEq(Mat4.PersScreenProj(d, vw, vh, sw, sh), expectedMat)
+    })
+})
+
+
 describe('Mat4 Accessor', () => {
     test.each([
         [0, 0, 1], [0, 1, 2], [0, 2, 3], [0, 3, 4],

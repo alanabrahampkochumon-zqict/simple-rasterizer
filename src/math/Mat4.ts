@@ -225,4 +225,24 @@ export class Mat4 {
     }
 
 
+    /**
+     * Construct a combined perspective and screen projection matrix.
+     *
+     * @param d  The distance to the projection plane.
+     * @param vw Viewport width
+     * @param vh Viewport height
+     * @param sw Screen width
+     * @param sh Screen height
+     * @constructor
+     */
+    static PersScreenProj(d: number, vw: number, vh: number, sw: number, sh: number): Mat4 {
+        return new Mat4(
+            d * sw / vw, 0, 0, 0,
+            0, d * sh / vh, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1
+        );
+    }
+
+
 }
