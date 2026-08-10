@@ -15,8 +15,19 @@ describe('Mat4 Accessor', () => {
 });
 
 describe("Mat4 Multiplication Tests", () => {
-
-    // test("Matrix Multiplication Returns Correct Result", () => {
-    //     Mat4 matA = new Mat4(1, 2, 3, 4)
-    // })
+    test("matMul returns a valid matrix", () => {
+        const matA = new Mat4(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)
+        const matB = new Mat4(10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25)
+        const expected = new Mat4(180, 190, 200, 210, 436, 462, 488, 514, 692, 734, 776, 818, 948, 1006, 1064, 1122);
+        expectMatrixEq(matA.matMul(matB), expected)
+    })
 })
+
+
+function expectMatrixEq(a: Mat4, b: Mat4) {
+    for (let i = 0; i < 4; ++i) {
+        for (let j = 0; j < 4; ++j) {
+            expect(a.get(i, j)).toStrictEqual(b.get(i, j))
+        }
+    }
+}
