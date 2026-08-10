@@ -1,7 +1,8 @@
 import {Vec3} from "./math/Vec3.ts";
 import {IVec3} from "./math/ivec3.ts";
-import {Mat4} from "./math/depr/mat4.ts";
+import {Mat4} from "./math/Mat4.ts";
 import {Mat3} from "./math/Mat3.ts";
+import {Vec4} from "@/math/Vec4.ts";
 
 
 export class Scene {
@@ -55,6 +56,9 @@ export class Transform {
     }
 
     // Applies transformation in translation, rotation, scale
+    /**
+     * @deprecated
+     */
     apply(vertex: Vec3): Vec3 {
         // Apply scale
         const scaledVec = new Vec3(0, 0, 0);
@@ -74,5 +78,14 @@ export class Transform {
         // Apply translation
         const translatedVec = new Vec3(0, 0, 0);
         return Vec3.Add(translatedVec, rotVec, this.position)
+    }
+
+    applyAffine(vertex: Vec3): Vec4 {
+        const rotation = Mat4.rotX(this.orientation.x).matMul(Mat4.rotY(this.orientation.y).matMul(Mat4.rotZ(this.orientation.z)))
+        const scale = Mat4.scale(this.scale, this.scale, this.scale)
+        const translation = Mat4.translate(this.position.x, this.position.y, this.position.z)
+
+        const combined = translation.matMul(scale.matMul(rotation))
+        return combined.vecMul(Vec4.Point3(vertex.x, vertex.y, vertex.z))
     }
 }

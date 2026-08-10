@@ -40,7 +40,7 @@ describe("Mat4 Ctor", () => {
             0, 0, 1, 0,
             0, 0, 0, 1
         )
-        expectMatrixEq(Mat4.PersScreenProj(d, vw, vh, sw, sh), expectedMat)
+        expectMatrixEq(Mat4.persScreenProj(d, vw, vh, sw, sh), expectedMat)
     })
 })
 

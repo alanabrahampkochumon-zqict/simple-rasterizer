@@ -235,10 +235,10 @@ export class Mat4 {
      * @param sh Screen height
      * @constructor
      */
-    static PersScreenProj(d: number, vw: number, vh: number, sw: number, sh: number): Mat4 {
+    static persScreenProj(d: number, vw: number, vh: number, sw: number, sh: number): Mat4 {
         return new Mat4(
-            d * sw / vw, 0, 0, 0,
-            0, d * sh / vh, 0, 0,
+            2 * d * sw / vw, 0, 0, sw * 0.5,
+            0, 2 * d * sh / vh, 0, sh * 0.5,
             0, 0, 1, 0,
             0, 0, 0, 1
         );

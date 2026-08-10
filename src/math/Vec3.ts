@@ -1,3 +1,5 @@
+import {Vec2} from "@/math/vec2.ts";
+
 export class Vec3 {
     x: number;
     y: number;
@@ -19,6 +21,16 @@ export class Vec3 {
      */
     dot(other: Vec3): number {
         return this.x * other.x + this.y * other.y + this.z * other.z;
+    }
+
+    /**
+     * TODO: Add test
+     * Perform perspective divide and return 2D vector.
+     * @return A new Vector after performing perspective divide.
+     */
+    perspDiv(): Vec2 {
+        const factor = 1.0 / this.z
+        return new Vec2(this.x * factor, this.y * factor)
     }
 
     /**

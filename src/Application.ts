@@ -3,6 +3,7 @@ import {Vec2} from "./math/vec2.ts";
 import {Vec3} from "./math/Vec3.ts";
 import {MeshObject} from "./MeshObject.ts";
 import {ModelInstance, Scene, Transform} from "./Scene.ts";
+import {Mat4} from "@/math/Mat4.ts";
 
 export class Application {
     canvas: HTMLCanvasElement;
@@ -696,8 +697,8 @@ export class Application {
         ]
 
         const scene = new Scene(vertices, [
-            new ModelInstance(indices, new Transform(new Vec3(-2, -2, 5), new Vec3(0, 1, 0), 0.75), new IVec3(128, 255, 25), "Cube 1"),
-            new ModelInstance(indices, new Transform(new Vec3(5, 5, 7), new Vec3(0.1, 1, 2), ), new IVec3(0, 128, 255), "Cube 2")
+            new ModelInstance(indices, new Transform(new Vec3(0, 0, 1), new Vec3(0, 1.75, 0), 0.5), new IVec3(128, 255, 25), "Cube 1"),
+            // new ModelInstance(indices, new Transform(new Vec3(0, 0, 5), new Vec3(0, 1, 2),), new IVec3(20, 120, 180), "Cube 2")
         ])
 
         this.renderScene(scene);
@@ -727,8 +728,13 @@ export class Application {
             for (const index of [triangle.x, triangle.y, triangle.z]) {
                 // const translatedVec = new Vec3(0, 0, 0);
                 // Vec3.Add(translatedVec, vertices[index], instance.transform.position)
-                const translatedVec = instance.transform.apply(vertices[index])
-                triangleVerts.push(this.viewportToCanvas(this.perspectiveProj(translatedVec, 4), 10, 10, this.width, this.height))
+                const translatedVec = instance.transform.applyAffine(vertices[index])
+                const perspectiveProj = Mat4.persScreenProj(1, 4, 4, this.width, this.height)
+                console.log(`Projection Working: ${this.viewportToCanvas(this.perspectiveProj(translatedVec.castVec3(), 4), 10, 10, this.width, this.height)}`)
+                console.log(`Applied Transform: ${perspectiveProj.vecMul(translatedVec)}`)
+                console.log(`Applied Z Divide: ${perspectiveProj.vecMul(translatedVec).castVec3().perspDiv()}`)
+                // triangleVerts.push(this.viewportToCanvas(this.perspectiveProj(translatedVec.castVec3(), 4), 10, 10, this.width, this.height))
+                triangleVerts.push(perspectiveProj.vecMul(translatedVec).castVec3().perspDiv())
             }
             // console.log("Triangle Verts: ", triangleVerts)
             this.drawTriangle(triangleVerts[0], triangleVerts[1], triangleVerts[2], instance.color);
