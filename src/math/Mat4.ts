@@ -170,18 +170,36 @@ export class Mat4 {
 
 
     /**
-     * Construct a translation matrix around.
+     * Construct a translation matrix.
      * @param x The translation in x-axis.
      * @param y The translation in y-axis.
      * @param z The translation in z-axis.
      *
-     * @return The rotation matrix.
+     * @return The translation matrix.
      */
-    static translate(x: number, y: number, z: number) {
+    static translate(x: number, y: number, z: number): Mat4 {
         return new Mat4(
             1, 0, 0, x,
             0, 1, 0, y,
             0, 0, 1, z,
+            0, 0, 0, 1
+        )
+    }
+
+
+    /**
+     * Construct a scale matrix.
+     * @param x The scale factor in x-axis.
+     * @param y The scale factor in y-axis.
+     * @param z The scale factor in z-axis.
+     *
+     * @return The scale matrix.
+     */
+    static scale(x: number, y: number, z: number): Mat4 {
+        return new Mat4(
+            x, 0, 0, 0,
+            0, y, 0, 0,
+            0, 0, z, 0,
             0, 0, 0, 1
         )
     }

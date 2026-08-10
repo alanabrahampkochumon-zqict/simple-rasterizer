@@ -32,29 +32,6 @@ describe("Mat4 Multiplication Tests", () => {
 })
 
 
-//
-// describe("Mat4: RotationY", () => {
-//     const pi = Math.PI
-//     const testCases: Record<number, Mat4>[] = [
-//         {0: new Mat4(1, 0, 0, 0, 1, 0, 0, 0, 1)},
-//         {[pi / 2]: new Mat4(0, 0, 1, 0, 1, 0, -1, 0, 0)},
-//         {[-pi / 2]: new Mat4(0, 0, -1, 0, 1, 0, 1, 0, 0)},
-//         {[pi]: new Mat4(-1, 0, 0, 0, 1, 0, 0, 0, -1)},
-//         {[2 * pi]: new Mat4(1, 0, 0, 0, 1, 0, 0, 0, 1)}
-//     ];
-//
-//     test.each(testCases)("return correct Mat4 for angle %s", (testPack) => {
-//         const [angle, expectedMatrix] = Object.entries(testPack)[0]
-//         const rotMat = Mat4.rotY(parseFloat(angle))
-//
-//         for (let i = 0; i < 9; ++i) {
-//             expect(rotMat.buffer[i]).toBeCloseTo(expectedMatrix.buffer[i], 5)
-//         }
-//     })
-//
-// })
-
-
 describe("Mat4 rotation", () => {
     const pi = Math.PI
 
@@ -230,6 +207,22 @@ describe("Mat4 Translation", () => {
         expectMatrixEq(Mat4.translate(x, y, z), expectedMatrix)
     })
 })
+
+
+describe("Mat4 Scale", () => {
+    test("scale(x, y, z) returns a valid transformation factory", () => {
+        const x = 5
+        const y = 12
+        const z = 16
+        const expectedMatrix = new Mat4(
+            x, 0, 0, 0,
+            0, y, 0, 0,
+            0, 0, z, 0,
+            0, 0, 0, 1)
+        expectMatrixEq(Mat4.scale(x, y, z), expectedMatrix)
+    })
+})
+
 
 function expectVecEq(a: Vec4, b: Vec4) {
     expect(a.x).toStrictEqual(b.x)
