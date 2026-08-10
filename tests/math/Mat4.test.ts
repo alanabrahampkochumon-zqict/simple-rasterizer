@@ -216,6 +216,21 @@ describe("Mat4 rotation", () => {
     })
 })
 
+
+describe("Mat4 Translation", () => {
+    test("translate(x, y, z) returns a valid transformation factory", () => {
+        const x = 5
+        const y = 12
+        const z = 16
+        const expectedMatrix = new Mat4(
+            1, 0, 0, x,
+            0, 1, 0, y,
+            0, 0, 1, z,
+            0, 0, 0, 1)
+        expectMatrixEq(Mat4.translate(x, y, z), expectedMatrix)
+    })
+})
+
 function expectVecEq(a: Vec4, b: Vec4) {
     expect(a.x).toStrictEqual(b.x)
     expect(a.y).toStrictEqual(b.y)

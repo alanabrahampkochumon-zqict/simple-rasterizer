@@ -169,4 +169,22 @@ export class Mat4 {
     }
 
 
+    /**
+     * Construct a translation matrix around.
+     * @param x The translation in x-axis.
+     * @param y The translation in y-axis.
+     * @param z The translation in z-axis.
+     *
+     * @return The rotation matrix.
+     */
+    static translate(x: number, y: number, z: number) {
+        return new Mat4(
+            1, 0, 0, x,
+            0, 1, 0, y,
+            0, 0, 1, z,
+            0, 0, 0, 1
+        )
+    }
+
+
 }
