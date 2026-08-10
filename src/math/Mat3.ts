@@ -1,5 +1,5 @@
 import {fixedW} from "./Utils.ts";
-import type {Vec3} from "./vec3.ts";
+import type {Vec3} from "./Vec3.ts";
 
 
 /**

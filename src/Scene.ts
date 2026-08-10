@@ -1,4 +1,4 @@
-import {Vec3} from "./math/vec3.ts";
+import {Vec3} from "./math/Vec3.ts";
 import {IVec3} from "./math/ivec3.ts";
 import {Mat4} from "./math/depr/mat4.ts";
 import {Mat3} from "./math/Mat3.ts";

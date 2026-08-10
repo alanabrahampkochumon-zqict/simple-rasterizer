@@ -1,6 +1,6 @@
 import {IVec3} from "./math/ivec3.ts"
 import {Vec2} from "./math/vec2.ts";
-import {Vec3} from "./math/vec3.ts";
+import {Vec3} from "./math/Vec3.ts";
 import {MeshObject} from "./MeshObject.ts";
 import {ModelInstance, Scene, Transform} from "./Scene.ts";
 

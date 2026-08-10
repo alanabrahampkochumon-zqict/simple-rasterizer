@@ -1,4 +1,4 @@
-import {Vec3} from "./vec3.ts";
+import {Vec3} from "./Vec3.ts";
 
 export class Vec4 {
     x: number

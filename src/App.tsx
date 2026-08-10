@@ -3,7 +3,7 @@ import {Application} from "./Application.ts";
 import {IVec3} from "./math/ivec3.ts";
 import {Controls} from "./Controls.tsx";
 import type {MeshObject} from "./MeshObject.ts";
-import {Vec3} from "./math/vec3.ts";
+import {Vec3} from "./math/Vec3.ts";
 
 
 const WindowParams = {width: 0, height: 0}

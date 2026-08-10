@@ -1,4 +1,4 @@
-import type {Vec3} from "./math/vec3.ts";
+import type {Vec3} from "./math/Vec3.ts";
 import type {IVec3} from "./math/ivec3.ts";
 
 export class  MeshObject{

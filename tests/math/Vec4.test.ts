@@ -2,7 +2,7 @@ import {describe, expect, test} from "vitest";
 import {Vec4} from "../../src/math/Vec4";
 
 describe("Vec4", () => {
-    test("Ctor create a vector with correct values", () => {
+    test("Ctor initializes a 4D vector with passed-in values", () => {
         const vec = new Vec4(1, 2, 3, 4)
         expect(vec.x).toStrictEqual(1)
         expect(vec.y).toStrictEqual(2)

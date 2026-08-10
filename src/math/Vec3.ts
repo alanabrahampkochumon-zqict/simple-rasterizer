@@ -10,10 +10,27 @@ export class Vec3 {
     }
 
 
+    /**
+     * Compute the dot product between this vector and another.
+     *
+     * @param other The other vector to dot this with.
+     *
+     * @return The dot product.
+     */
+    dot(other: Vec3): number {
+        return this.x * other.x + this.y * other.y + this.z * other.z;
+    }
+
+    /**
+     * @deprecated
+     */
     static Dot(a: Vec3, b: Vec3): number {
         return a.x * b.x + a.y * b.y + a.z * b.z;
     }
 
+    /**
+     * @deprecated
+     */
     static Sub(res: Vec3, a: Vec3, b: Vec3): Vec3 {
         res.x = a.x - b.x;
         res.y = a.y - b.y;
@@ -21,6 +38,10 @@ export class Vec3 {
         return res;
     }
 
+
+    /**
+     * @deprecated
+     */
     static Add(res: Vec3, a: Vec3, b: Vec3): Vec3 {
         res.x = a.x + b.x;
         res.y = a.y + b.y;
@@ -29,6 +50,9 @@ export class Vec3 {
         return res;
     }
 
+    /**
+     * @deprecated
+     */
     static Mul(res: Vec3, a: Vec3, s: number): Vec3 {
         res.x = s * a.x
         res.y = s * a.y

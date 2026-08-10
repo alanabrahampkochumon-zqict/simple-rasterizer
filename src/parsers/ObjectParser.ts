@@ -1,5 +1,5 @@
 import {MeshObject} from "../MeshObject.ts";
-import {Vec3} from "../math/vec3.ts";
+import {Vec3} from "../math/Vec3.ts";
 import {IVec3} from "../math/ivec3.ts";
 
 export async function parseObject(file: File): Promise<MeshObject> {
