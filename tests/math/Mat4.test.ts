@@ -224,6 +224,18 @@ describe("Mat4 Scale", () => {
 })
 
 
+describe("Mat4 Constants", () => {
+    test("I() returns an identity matrix", () => {
+        const expectedMatrix = new Mat4(
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1)
+        expectMatrixEq(Mat4.I(), expectedMatrix)
+    })
+})
+
+
 function expectVecEq(a: Vec4, b: Vec4) {
     expect(a.x).toStrictEqual(b.x)
     expect(a.y).toStrictEqual(b.y)

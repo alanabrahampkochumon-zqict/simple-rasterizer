@@ -102,6 +102,7 @@ export class Mat4 {
      * @param vec The vector to multiply.
      *
      * @return A new vector transformed by this matrix.
+     * @constructor
      */
     vecMul(vec: Vec4): Vec4 {
         const resVec = Vec4.zero()
@@ -121,6 +122,7 @@ export class Mat4 {
      * @param angle The angle of rotation in radians.
      *
      * @return The rotation matrix.
+     * @constructor
      */
     static rotX(angle: number): Mat4 {
         const c = Math.cos(angle)
@@ -138,6 +140,7 @@ export class Mat4 {
      * @param angle The angle of rotation in radians.
      *
      * @return The rotation matrix.
+     * @constructor
      */
     static rotY(angle: number): Mat4 {
         const c = Math.cos(angle)
@@ -156,6 +159,7 @@ export class Mat4 {
      * @param angle The angle of rotation in radians.
      *
      * @return The rotation matrix.
+     * @constructor
      */
     static rotZ(angle: number): Mat4 {
         const c = Math.cos(angle)
@@ -176,6 +180,7 @@ export class Mat4 {
      * @param z The translation in z-axis.
      *
      * @return The translation matrix.
+     * @constructor
      */
     static translate(x: number, y: number, z: number): Mat4 {
         return new Mat4(
@@ -194,6 +199,7 @@ export class Mat4 {
      * @param z The scale factor in z-axis.
      *
      * @return The scale matrix.
+     * @constructor
      */
     static scale(x: number, y: number, z: number): Mat4 {
         return new Mat4(
@@ -202,6 +208,20 @@ export class Mat4 {
             0, 0, z, 0,
             0, 0, 0, 1
         )
+    }
+
+
+    /**
+     * Construct an identity matrix.
+     * @constructor
+     */
+    static I(): Mat4 {
+        return new Mat4(
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1
+        );
     }
 
 
