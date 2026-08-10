@@ -1,6 +1,6 @@
 import {Vec3} from "./vec3.ts";
 
-export class Vec4{
+export class Vec4 {
     x: number
     y: number
     z: number
@@ -21,5 +21,10 @@ export class Vec4{
     perspectiveDivide(): Vec3 {
         const factor = 1.0 / this.w;
         return new Vec3(this.x * factor, this.y * factor, this.z * factor);
+    }
+
+
+    static zero() {
+        return new Vec4(0, 0, 0, 0);
     }
 }

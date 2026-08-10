@@ -1,4 +1,4 @@
-import type {Vec4} from "../vec4.ts";
+import type {Vec4} from "../Vec4.ts";
 
 export class Mat4 {
 

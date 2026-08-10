@@ -1,3 +1,5 @@
+import {Vec4} from "./Vec4.ts";
+
 export class Mat4 {
     data: number[]
 
@@ -40,6 +42,8 @@ export class Mat4 {
 
     /**
      * Compute the product of this matrix with another in-place.
+     *
+     * @param matrix The matrix to multiply
      *
      * @return A reference to this matrix.
      */
@@ -89,6 +93,26 @@ export class Mat4 {
         this.data[14] = m23
         this.data[15] = m33
         return this;
+    }
+
+
+    /**
+     * Compute the product of this matrix with a column vector.
+     *
+     * @param vec The vector to multiply.
+     *
+     * @return A new vector transformed by this matrix.
+     */
+    vecMul(vec: Vec4): Vec4 {
+        const resVec = Vec4.zero()
+
+        resVec.x = this.data[0] * vec.x + this.data[4] * vec.y + this.data[8] * vec.z + this.data[12] * vec.w;
+        resVec.y = this.data[1] * vec.x + this.data[5] * vec.y + this.data[9] * vec.z + this.data[13] * vec.w;
+        resVec.z = this.data[2] * vec.x + this.data[6] * vec.y + this.data[10] *vec.z + this.data[14] * vec.w;
+        resVec.w = this.data[3] * vec.x + this.data[7] * vec.y + this.data[11] *vec.z + this.data[15] * vec.w;
+
+        return resVec;
+
     }
 
 
