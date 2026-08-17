@@ -1,5 +1,4 @@
 import {Vec3} from "./math/Vec3.ts";
-import {IVec3} from "./math/ivec3.ts";
 import {Mat4} from "./math/Mat4.ts";
 import {Mat3} from "./math/Mat3.ts";
 import {Vec4} from "@/math/Vec4.ts";
@@ -25,7 +24,7 @@ export class ModelInstance {
     name: string
     transform: Transform
     triangleIndices: Vec3[]
-    color: IVec3
+    color: Vec3
 
     /**
      * Create a model instance that share vertices in the scene.
@@ -35,7 +34,7 @@ export class ModelInstance {
      * @param color           The color of the object
      * @param name            A name for the object, for debugging purposes.
      */
-    constructor(triangleIndices: Vec3[], transform: Transform, color: IVec3 = new IVec3(255, 255, 255), name: string) {
+    constructor(triangleIndices: Vec3[], transform: Transform, color: Vec3 = new Vec3(255, 255, 255), name: string) {
         this.name = name
         this.triangleIndices = triangleIndices
         this.transform = transform

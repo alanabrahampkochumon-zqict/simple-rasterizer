@@ -1,6 +1,5 @@
-import {IVec3} from "./math/ivec3.ts"
+import {Vec3} from "./math/Vec3.ts"
 import {Vec2} from "./math/vec2.ts";
-import {Vec3} from "./math/Vec3.ts";
 import {MeshObject} from "./MeshObject.ts";
 import {ModelInstance, Scene, Transform} from "./Scene.ts";
 import {Mat4} from "@/math/Mat4.ts";
@@ -11,7 +10,7 @@ export class Application {
     width: number;
     height: number;
     targetSurface: ImageData;
-    clearColor: IVec3;
+    clearColor: Vec3;
     mesh: MeshObject
 
     constructor(canvas: HTMLCanvasElement) {
@@ -29,7 +28,7 @@ export class Application {
             canvas.width,
             canvas.height,
         );
-        this.clearColor = new IVec3(0, 0, 0);
+        this.clearColor = new Vec3(0, 0, 0);
 
         this.resize()
     }
@@ -54,7 +53,7 @@ export class Application {
      *
      * @param color The clear color to set.
      */
-    setClearColor(color: IVec3) {
+    setClearColor(color: Vec3) {
         this.clearColor = color;
     }
 
@@ -66,7 +65,7 @@ export class Application {
      *
      * @private
      */
-    #putPixel(x: number, y: number, color: IVec3) {
+    #putPixel(x: number, y: number, color: Vec3) {
         // Wrap around fix
         if (x < 0 || y < 0 || x >= this.width || y >= this.height)
             return
@@ -86,11 +85,22 @@ export class Application {
         // then we can use 496, 497, 498, 499(last index), but if its 497, then i + 3 is out-of-bounds
         // flatIndex < this.targetSurface.data.length - 3 && blitColor(this.targetSurface.data);
 
-        this.targetSurface.data[flatIndex] = color.r;
-        this.targetSurface.data[flatIndex + 1] = color.g;
-        this.targetSurface.data[flatIndex + 2] = color.b;
+        this.targetSurface.data[flatIndex] = color.x;
+        this.targetSurface.data[flatIndex + 1] = color.y;
+        this.targetSurface.data[flatIndex + 2] = color.z;
         this.targetSurface.data[flatIndex + 3] = 255; // Full opacity on alpha channel
 
+    }
+
+
+    // The coordinates we are getting are from -width/2 to width/2
+    // and height/2(top) to -height/2(bottom)
+    // but we need to convert that to 0 to width and 0 to height
+    // TODO: Update all Vec3 to Vec3
+    #putPixelNormalized(x: number, y: number, color: Vec3) {
+        x = x + this.width / 2;
+        y = -y + this.height / 2;
+        this.#putPixel(x, y, new Vec3(color.x, color.y, color.z))
     }
 
     /**
@@ -109,7 +119,7 @@ export class Application {
     }
 
 
-    #drawLineH(p0: Vec2, p1: Vec2, color: IVec3) {
+    #drawLineH_depr(p0: Vec2, p1: Vec2, color: Vec3) {
         // Slope(m) = change in y / change in x
         // Line Eq: y = mx + b
 
@@ -137,7 +147,52 @@ export class Application {
 
     }
 
-    #drawLineV(p0: Vec2, p1: Vec2, color: IVec3) {
+    #drawLineV(p0: Vec2, p1: Vec2, color: Vec3) {
+        if (p0.y > p1.y) {
+            const temp = p0
+            p0 = p1
+            p1 = temp
+        }
+
+        // Slope is flipped, so m = δx/δy
+        const m = (p1.x - p0.x) / (p1.y - p0.y)
+        let x = p0.x
+
+        for (let y = p0.y; y < p1.y; ++y) {
+            this.#putPixelNormalized(x, y, color)
+            x += m
+        }
+    }
+
+    #drawLineH(p0: Vec2, p1: Vec2, color: Vec3) {
+        // Slope(m) = change in y / change in x
+        // Line Eq: y = mx + b
+
+        // If line is moving from right to left
+        // since the drawing order doesn't matter
+        // we can just swap them
+        if (p0.x > p1.x) {
+            const temp = p0
+            p0 = p1
+            p1 = temp
+        }
+
+        // Optimization
+        // Since the slope is one factor that is changing from y0 to y1
+        // We can calculate the initial y0 and add slope to it to get the next y
+        const m = (p1.y - p0.y) / (p1.x - p0.x)
+        let y = p0.y
+
+
+        // Note: Must iterate until p1.x inclusive
+        for (let x = p0.x; x <= p1.x; ++x) {
+            this.#putPixelNormalized(x, y, color)
+            y += m
+        }
+
+    }
+
+    #drawLineV_depr(p0: Vec2, p1: Vec2, color: Vec3) {
         if (p0.y > p1.y) {
             const temp = p0
             p0 = p1
@@ -166,13 +221,13 @@ export class Application {
      *
      * @deprecated
      */
-    drawLineNonInterpolated(p0: Vec2, p1: Vec2, color: IVec3) {
+    drawLineNonInterpolated(p0: Vec2, p1: Vec2, color: Vec3) {
         const deltaX = Math.abs(p1.x - p0.x)
         const deltaY = Math.abs(p1.y - p0.y)
         if (deltaX > deltaY) {
-            this.#drawLineH(p0, p1, color)
+            this.#drawLineH_depr(p0, p1, color)
         } else {
-            this.#drawLineV(p0, p1, color)
+            this.#drawLineV_depr(p0, p1, color)
         }
     }
 
@@ -206,7 +261,7 @@ export class Application {
     // FIX NOTE: Indices must be rounded, else they can give undefined values
     // FIX NOTE: Rounding has been changed to | 0, inspired by Gabriel Gambetta's code
     // While it gives a better accuracy, its not a 100% as there are still some artifacts.
-    drawLine(p0: Vec2, p1: Vec2, color: IVec3) {
+    drawLine(p0: Vec2, p1: Vec2, color: Vec3) {
         const deltaX = Math.abs(p1.x - p0.x)
         const deltaY = Math.abs(p1.y - p0.y)
         if (deltaX > deltaY) {
@@ -224,7 +279,7 @@ export class Application {
 
             const values = this.interpolate(p0.x, p0.y, p1.x, p1.y)
             for (let x = p0.x; x <= p1.x; ++x) {
-                this.#putPixel(x, values[(x - p0.x) | 0], color)
+                this.#putPixelNormalized(x, values[(x - p0.x) | 0], color)
             }
         } else {
             // Line is verticalish
@@ -238,7 +293,7 @@ export class Application {
 
             const values = this.interpolate(p0.y, p0.x, p1.y, p1.x)
             for (let y = p0.y; y <= p1.y; ++y)
-                this.#putPixel(values[(y - p0.y) | 0], y, color)
+                this.#putPixelNormalized(values[(y - p0.y) | 0], y, color)
 
         }
     }
@@ -277,14 +332,14 @@ export class Application {
     }
 
 
-    drawTriangleWireframe(p0: Vec2, p1: Vec2, p2: Vec2, color: IVec3) {
+    drawTriangleWireframe(p0: Vec2, p1: Vec2, p2: Vec2, color: Vec3) {
         // 0 to 1, 1 to 2, 2 to 0
         this.drawLine(p0, p1, color)
         this.drawLine(p1, p2, color)
         this.drawLine(p2, p0, color)
     }
 
-    drawTriangle(p0: Vec2, p1: Vec2, p2: Vec2, color: IVec3) {
+    drawTriangle(p0: Vec2, p1: Vec2, p2: Vec2, color: Vec3) {
         // Must round the vertices before interpolated to prevent artifacting
         // due to incomplete interpolation
         p0 = new Vec2(p0.x | 0, p0.y | 0)
@@ -326,7 +381,7 @@ export class Application {
         let left, right, leftH, rightH; // Int -> Intensity
         // Draw line for each x and y values
         // Clarity
-        const interpolatedColor = new IVec3(0, 0, 0); // A holder var to hold the interpolated colors
+        const interpolatedColor = new Vec3(0, 0, 0); // A holder var to hold the interpolated colors
         if (xAC[midpointIndex] < xABC[midpointIndex]) {
             // xCA is the left side
             left = xAC
@@ -358,7 +413,7 @@ export class Application {
             for (let x = xLeft; x <= xRight; ++x) {
                 const xDelta = (x - xLeft) | 0
 
-                IVec3.Mul(interpolatedColor, color, hSegment[xDelta]) // Subtraction required to bring the index down to 0..n
+                Vec3.Mul(interpolatedColor, color, hSegment[xDelta]) // Subtraction required to bring the index down to 0..n
 
                 this.#putPixel(x, y, color)
             }
@@ -368,6 +423,8 @@ export class Application {
 
 
     render() {
+        this.#drawLineV(new Vec2(0, 0), new Vec2(100, 100), new Vec3(255, 255, 255))
+        this.#drawLineV(new Vec2(0, -1000), new Vec2(0, 1000), new Vec3(0, 255, 255))
         // this.colorUVTest()
         //this.drawLineTest()
         // this.drawTriWireframeTest()
@@ -399,9 +456,9 @@ export class Application {
         // const translationVec = new Vec3(0, 0, 7 + this.translation)
         // if (this.mesh != undefined)
         //     this.renderObject(this.mesh.vertices.map(vertex => this.rotate(new Vec3(0, 0, 0), vertex, this.translation)), this.mesh.indices)
-        // // this.render()
+        this.render()
         // this.translation += 0.05
-        this.testSceneRender()
+        // this.testSceneRender()
         this.updateScreen()
         // requestAnimationFrame(() => this.run())
 
@@ -420,19 +477,19 @@ export class Application {
         const topRight = new Vec2(500, 10)
         const bottomRight = new Vec2(500, 500)
 
-        this.drawLine(new Vec2(topLeft.x, topLeft.y), new Vec2(topRight.x, topRight.y), new IVec3(255, 0, 255)) // Horizontal Line
-        this.drawLine(new Vec2(topLeft.x, topLeft.y), new Vec2(bottomLeft.x, bottomLeft.y), new IVec3(255, 0, 255)) // Can't draw vertical line since slope == 0
-        this.drawLine(new Vec2(topLeft.x, topLeft.y), new Vec2(bottomRight.x, bottomRight.y), new IVec3(255, 0, 255))// Cross
+        this.drawLine(new Vec2(topLeft.x, topLeft.y), new Vec2(topRight.x, topRight.y), new Vec3(255, 0, 255)) // Horizontal Line
+        this.drawLine(new Vec2(topLeft.x, topLeft.y), new Vec2(bottomLeft.x, bottomLeft.y), new Vec3(255, 0, 255)) // Can't draw vertical line since slope == 0
+        this.drawLine(new Vec2(topLeft.x, topLeft.y), new Vec2(bottomRight.x, bottomRight.y), new Vec3(255, 0, 255))// Cross
 
-        this.drawLine(new Vec2(bottomLeft.x, bottomLeft.y), new Vec2(bottomRight.x, bottomRight.y), new IVec3(255, 0, 255)) // Bottom Horizontal line
-        this.drawLine(new Vec2(topRight.x, topRight.y), new Vec2(bottomRight.x, bottomRight.y), new IVec3(255, 0, 255)) // Can't draw vertical line since slope == 0
-        this.drawLine(new Vec2(bottomLeft.x, bottomLeft.y), new Vec2(topRight.x, topRight.y), new IVec3(255, 0, 255)) // Cross
+        this.drawLine(new Vec2(bottomLeft.x, bottomLeft.y), new Vec2(bottomRight.x, bottomRight.y), new Vec3(255, 0, 255)) // Bottom Horizontal line
+        this.drawLine(new Vec2(topRight.x, topRight.y), new Vec2(bottomRight.x, bottomRight.y), new Vec3(255, 0, 255)) // Can't draw vertical line since slope == 0
+        this.drawLine(new Vec2(bottomLeft.x, bottomLeft.y), new Vec2(topRight.x, topRight.y), new Vec3(255, 0, 255)) // Cross
 
-        this.drawLine(new Vec2(0, 0), new Vec2(this.width, this.height), new IVec3(255, 225, 22))
+        this.drawLine(new Vec2(0, 0), new Vec2(this.width, this.height), new Vec3(255, 225, 22))
 
         // Right to left line
-        this.drawLine(new Vec2(800, 100), new Vec2(50, 50), new IVec3(255, 255, 0))
-        this.drawLine(new Vec2(500, 500), new Vec2(450, 40), new IVec3(255, 255, 0))
+        this.drawLine(new Vec2(800, 100), new Vec2(50, 50), new Vec3(255, 255, 0))
+        this.drawLine(new Vec2(500, 500), new Vec2(450, 40), new Vec3(255, 255, 0))
     }
 
 
@@ -442,9 +499,9 @@ export class Application {
             new Vec2(800, 400),
             new Vec2(50, 400)
         ]
-        const color = new IVec3(10, 255, 255)
+        const color = new Vec3(10, 255, 255)
 
-        this.drawTriangleWireframe(verts[0], verts[1], verts[2], new IVec3(50, 255, 0))
+        this.drawTriangleWireframe(verts[0], verts[1], verts[2], new Vec3(50, 255, 0))
         this.drawTriangle(verts[0], verts[1], verts[2], color)
     }
 
@@ -452,19 +509,19 @@ export class Application {
         // Test Code: Renders UV
         for (let i = 0; i < this.height; ++i)
             for (let j = 0; j < this.width; ++j)
-                this.#putPixel(j, i, new IVec3(j / this.width * 255, i / this.height * 255, 0))
+                this.#putPixel(j, i, new Vec3(j / this.width * 255, i / this.height * 255, 0))
     }
 
     // TODO: Color
-    renderObject(vertices: Vec3[], indices: IVec3[]) {
+    renderObject(vertices: Vec3[], indices: Vec3[]) {
         const viewportDistance = 2
         const viewportWidth = 2
         const viewportHeight = 2
 
         const projectVertices = vertices.map((vertex) => this.viewportToCanvas(this.perspectiveProj(vertex, viewportDistance), viewportWidth, viewportHeight, this.width, this.height))
-        for (const {r, g, b} of indices) {
-            this.drawTriangle(projectVertices[r], projectVertices[g], projectVertices[b], new IVec3(255, 255, 0))
-            //this.drawTriangleWireframe(projectVertices[r], projectVertices[g], projectVertices[b], new IVec3(0, 255, 0))
+        for (const {x, y, z} of indices) {
+            this.drawTriangle(projectVertices[x], projectVertices[y], projectVertices[z], new Vec3(255, 255, 0))
+            //this.drawTriangleWireframe(projectVertices[r], projectVertices[g], projectVertices[b], new Vec3(0, 255, 0))
         }
 
         this.updateScreen()
@@ -491,9 +548,9 @@ export class Application {
         const vDb = new Vec3(-1, -0.5 + transY, 4.75)
 
 
-        const RED = new IVec3(255, 255, 0)
-        const GREEN = new IVec3(0, 255, 0)
-        const BLUE = new IVec3(0, 0, 255)
+        const RED = new Vec3(255, 255, 0)
+        const GREEN = new Vec3(0, 255, 0)
+        const BLUE = new Vec3(0, 0, 255)
         const viewportDist = 1
 
         this.drawLine(this.viewportToCanvas(this.perspectiveProj(vAf, viewportDist), 1, 1, this.width, this.height), this.viewportToCanvas(this.perspectiveProj(vBf, viewportDist), 1, 1, this.width, this.height), RED)
@@ -530,25 +587,25 @@ export class Application {
                 this.perspectiveProj(vAf, viewportDist), 1, 1, this.width, this.height),
             this.viewportToCanvas(this.perspectiveProj(vBf, viewportDist), 1, 1, this.width, this.height),
             this.viewportToCanvas(this.perspectiveProj(vAb, viewportDist), 1, 1, this.width, this.height),
-            new IVec3(255, 255, 255))
+            new Vec3(255, 255, 255))
 
         this.drawTriangle(this.viewportToCanvas(
                 this.perspectiveProj(vBf, viewportDist), 1, 1, this.width, this.height),
             this.viewportToCanvas(this.perspectiveProj(vBb, viewportDist), 1, 1, this.width, this.height),
             this.viewportToCanvas(this.perspectiveProj(vCf, viewportDist), 1, 1, this.width, this.height),
-            new IVec3(255, 0, 255))
+            new Vec3(255, 0, 255))
 
         this.drawTriangle(this.viewportToCanvas(
                 this.perspectiveProj(vCf, viewportDist), 1, 1, this.width, this.height),
             this.viewportToCanvas(this.perspectiveProj(vDb, viewportDist), 1, 1, this.width, this.height),
             this.viewportToCanvas(this.perspectiveProj(vDf, viewportDist), 1, 1, this.width, this.height),
-            new IVec3(255, 0, 255))
+            new Vec3(255, 0, 255))
 
         this.drawTriangle(this.viewportToCanvas(
                 this.perspectiveProj(vCb, viewportDist), 1, 1, this.width, this.height),
             this.viewportToCanvas(this.perspectiveProj(vCf, viewportDist), 1, 1, this.width, this.height),
             this.viewportToCanvas(this.perspectiveProj(vDb, viewportDist), 1, 1, this.width, this.height),
-            new IVec3(255, 255, 0))
+            new Vec3(255, 255, 0))
 
 
         this.drawTriangle(this.viewportToCanvas(
@@ -579,9 +636,9 @@ export class Application {
         const vDb = new Vec3(440, 560, 1.75)
 
 
-        const RED = new IVec3(120, 0, 0)
-        const GREEN = new IVec3(0, 120, 0)
-        const BLUE = new IVec3(0, 0, 120)
+        const RED = new Vec3(120, 0, 0)
+        const GREEN = new Vec3(0, 120, 0)
+        const BLUE = new Vec3(0, 0, 120)
         const viewportDist = 2
 
         const fov = Math.PI / 3;
@@ -650,17 +707,17 @@ export class Application {
         ]
 
         const indices = [
-            new IVec3(0, 1, 2),
-            new IVec3(0, 2, 3),
-            new IVec3(4, 0, 3),
-            new IVec3(4, 3, 7),
-            new IVec3(5, 4, 7),
-            new IVec3(5, 7, 6),
-            new IVec3(1, 6, 2),
-            new IVec3(4, 5, 1),
-            new IVec3(4, 1, 0),
-            new IVec3(2, 6, 7),
-            new IVec3(2, 7, 3),
+            new Vec3(0, 1, 2),
+            new Vec3(0, 2, 3),
+            new Vec3(4, 0, 3),
+            new Vec3(4, 3, 7),
+            new Vec3(5, 4, 7),
+            new Vec3(5, 7, 6),
+            new Vec3(1, 6, 2),
+            new Vec3(4, 5, 1),
+            new Vec3(4, 1, 0),
+            new Vec3(2, 6, 7),
+            new Vec3(2, 7, 3),
         ]
 
         const translation = new Vec3(-1.5, 0, 8)
@@ -697,8 +754,8 @@ export class Application {
         ]
 
         const scene = new Scene(vertices, [
-            new ModelInstance(indices, new Transform(new Vec3(0, 0, 1), new Vec3(0, 1.75, 0), 0.5), new IVec3(128, 255, 25), "Cube 1"),
-            // new ModelInstance(indices, new Transform(new Vec3(0, 0, 5), new Vec3(0, 1, 2),), new IVec3(20, 120, 180), "Cube 2")
+            new ModelInstance(indices, new Transform(new Vec3(0, 0, 1), new Vec3(0, 1.75, 0), 0.5), new Vec3(128, 255, 25), "Cube 1"),
+            // new ModelInstance(indices, new Transform(new Vec3(0, 0, 5), new Vec3(0, 1, 2),), new Vec3(20, 120, 180), "Cube 2")
         ])
 
         this.renderScene(scene);
