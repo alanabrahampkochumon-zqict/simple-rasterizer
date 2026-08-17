@@ -286,5 +286,14 @@ export class Mat4 {
         );
     }
 
+    static makeAffine(rX: number, rY: number, rZ: number, tX: number, tY: number, tZ: number) {
+        const mat = this.rotX(rX).matMulBin(this.rotY(rY).matMulBin(this.rotZ(rZ)))
+        console.log(mat)
+        mat.data[3] = tX;
+        mat.data[7] = tY;
+        mat.data[11] = tZ;
+        return mat
+    }
+
 
 }

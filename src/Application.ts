@@ -708,12 +708,7 @@ export class Application {
      */
     renderInstance(vertices: Vec3[], instance: ModelInstance) {
 
-        const camera = new Mat4(
-            1, 0, 0, 0,
-            0, 1, 0, 0,
-            0, 0, 1, 0,
-            0, 0, 0, 1
-        );
+        const camera = Mat4.makeAffine(0, 0, 0, 0, 0, 0);
         for (const triangle of instance.triangleIndices) {
             const triangleVerts = []
             for (const index of [triangle.x, triangle.y, triangle.z]) {
@@ -721,10 +716,6 @@ export class Application {
                 // const translatedVec = instance.transform.applyAffine(vertices[index])
                 const perspectiveProj = Mat4.persScreenProj(1, 1, 1, this.width, this.height)
                 // TODO: Refactor
-                // const camViewMatrix = camera.matMul(instance.transform.transformMat)
-                const i = Mat4.I()
-                i.data[3] = 4
-                console.log(camera)
                 const camViewMatrix = camera.matMulBin(instance.transform.transformMat)
                 const newVec = camViewMatrix.vecMul(Vec4.Point3(vertices[index].x, vertices[index].y, vertices[index].z))
 
