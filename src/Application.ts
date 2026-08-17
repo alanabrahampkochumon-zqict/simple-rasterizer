@@ -214,7 +214,7 @@ export class Application {
 
     // FIX NOTE: Indices must be rounded, else they can give undefined values
     // FIX NOTE: Rounding has been changed to | 0, inspired by Gabriel Gambetta's code
-    // While it gives a better accuracy, its not a 100% as there are still some artifacts.
+    // While it gives a better accuracy, it's not a 100% as there are still some artifacts.
     drawLine(p0: Vec2, p1: Vec2, color: Vec3) {
         const deltaX = Math.abs(p1.x - p0.x)
         const deltaY = Math.abs(p1.y - p0.y)
@@ -376,26 +376,6 @@ export class Application {
     }
 
 
-    render() {
-        this.testDrawHAndV()
-        // this.colorUVTest()
-        //this.drawLineTest()
-        // this.drawTriWireframeTest()
-        //this.drawCubeProjTest()
-        //this.drawCubeProjTest2()
-        //this.drawCubeTest()
-    }
-
-    testDrawHAndV() {
-        this.#drawLineV(new Vec2(0, 0), new Vec2(100, 100), new Vec3(255, 255, 255))
-        this.#drawLineV(new Vec2(0, -1000), new Vec2(0, 1000), new Vec3(0, 255, 255))
-        this.#drawLineV(new Vec2(0, 0), new Vec2(0, -100), new Vec3(0, 0, 255))
-        this.#drawLineV(new Vec2(0, 0), new Vec2(0, 100), new Vec3(0, 255, 0))
-        this.#drawLineH(new Vec2(0, 0), new Vec2(100, 0), new Vec3(0, 255, 0))
-        this.#drawLineH(new Vec2(0, 0), new Vec2(-100, 0), new Vec3(0, 0, 255))
-    }
-
-
     translation = 0.0;
 
     rotate(output: Vec3, input: Vec3, angle: number) {
@@ -418,13 +398,14 @@ export class Application {
         // const translationVec = new Vec3(0, 0, 7 + this.translation)
         // if (this.mesh != undefined)
         //     this.renderObject(this.mesh.vertices.map(vertex => this.rotate(new Vec3(0, 0, 0), vertex, this.translation)), this.mesh.indices)
-        this.render()
+        // this.testRender()
         // this.translation += 0.05
-        // this.testSceneRender()
+        this.testSceneRender()
         this.updateScreen()
         // requestAnimationFrame(() => this.run())
 
     }
+
 
 
     /**
@@ -432,6 +413,32 @@ export class Application {
      *     TEST CODE
      *********************
      */
+
+    testRender() {
+        // this.testDrawHAndV()
+        // this.testColorUV()
+        // this.drawLineTest()
+        // this.drawTriWireframeTest()
+        // this.drawCubeProjTest()
+        // this.drawCubeProjTest2()
+        // this.drawCubeTest()
+    }
+
+    testDrawHAndV() {
+        this.#drawLineV(new Vec2(0, 0), new Vec2(100, 100), new Vec3(255, 255, 255))
+        this.#drawLineV(new Vec2(0, -1000), new Vec2(0, 1000), new Vec3(0, 255, 255))
+        this.#drawLineV(new Vec2(0, 0), new Vec2(0, -100), new Vec3(0, 0, 255))
+        this.#drawLineV(new Vec2(0, 0), new Vec2(0, 100), new Vec3(0, 255, 0))
+        this.#drawLineH(new Vec2(0, 0), new Vec2(100, 0), new Vec3(0, 255, 0))
+        this.#drawLineH(new Vec2(0, 0), new Vec2(-100, 0), new Vec3(0, 0, 255))
+    }
+
+    testColorUV() {
+        // Test Code: Renders UV
+        for (let i = this.height / 2; i >= -this.height / 2; --i) // Top Down
+            for (let j = -this.width / 2; j < this.width / 2; ++j) // Left to right
+                this.#putPixelNormalized(j, i, new Vec3(j / this.width * 255, i / this.height * 255, 0))
+    }
 
     drawLineTest() {
         const topLeft = new Vec2(10, 10)
@@ -467,12 +474,6 @@ export class Application {
         this.drawTriangle(verts[0], verts[1], verts[2], color)
     }
 
-    colorUVTest() {
-        // Test Code: Renders UV
-        for (let i = 0; i < this.height; ++i)
-            for (let j = 0; j < this.width; ++j)
-                this.#putPixel(j, i, new Vec3(j / this.width * 255, i / this.height * 255, 0))
-    }
 
     // TODO: Color
     renderObject(vertices: Vec3[], indices: Vec3[]) {
@@ -537,7 +538,7 @@ export class Application {
                 this.perspectiveProj(vAb, viewportDist), 1, 1, this.width, this.height),
             this.viewportToCanvas(this.perspectiveProj(vBb, viewportDist), 1, 1, this.width, this.height),
             this.viewportToCanvas(this.perspectiveProj(vCb, viewportDist), 1, 1, this.width, this.height),
-            BLUE)
+            new Vec3(0, 255, 255))
         this.drawTriangle(this.viewportToCanvas(
                 this.perspectiveProj(vCb, viewportDist), 1, 1, this.width, this.height),
             this.viewportToCanvas(this.perspectiveProj(vDb, viewportDist), 1, 1, this.width, this.height),
@@ -592,11 +593,10 @@ export class Application {
 
 
         // Back vertices
-        const vAb = new Vec3(440, 360, 1.75)
-        const vBb = new Vec3(640, 360, 1.75)
-        const vCb = new Vec3(640, 560, 1.75)
-        const vDb = new Vec3(440, 560, 1.75)
-
+        const vAb = new Vec3(440, 360, 3)
+        const vBb = new Vec3(640, 360, 3)
+        const vCb = new Vec3(640, 560, 3)
+        const vDb = new Vec3(440, 560, 3)
 
         const RED = new Vec3(120, 0, 0)
         const GREEN = new Vec3(0, 120, 0)
@@ -608,37 +608,6 @@ export class Application {
         const zFar = 10000
         const zNear = 0.1
 
-
-        // console.log(`AF-BF\nFrom: ${this.perspective(vAf, zFar, zNear, fov, aspect)}\nTo: ${this.perspective(vBf, zFar, zNear, fov, aspect)}`)
-        // console.log(`BF-CF\nFrom: ${this.perspective(vBf, zFar, zNear, fov, aspect)}\nTo: ${this.perspective(vCf, zFar, zNear, fov, aspect)}`)
-        // console.log(`CF-DF\nFrom: ${this.perspective(vCf, zFar, zNear, fov, aspect)}\nTo: ${this.perspective(vDf, zFar, zNear, fov, aspect)}`)
-        // console.log(`DF-AF\nFrom: ${this.perspective(vDf, zFar, zNear, fov, aspect)}\nTo: ${this.perspective(vAf, zFar, zNear, fov, aspect)}\n\n`)
-        // )
-        //     console.log(`From: ${this.perspective(vAb, zFar, zNear, fov, aspect)}\nTo: ${this.perspective(vBb, zFar, zNear, fov, aspect)}`)
-        //     console.log(`From: ${this.perspective(vBb, zFar, zNear, fov, aspect)}\nTo: ${this.perspective(vCb, zFar, zNear, fov, aspect)}`)
-        //     console.log(`From: ${this.perspective(vCb, zFar, zNear, fov, aspect)}\nTo: ${this.perspective(vDb, zFar, zNear, fov, aspect)}`)
-        //     console.log(`From: ${this.perspective(vDb, zFar, zNear, fov, aspect)}\nTo: ${this.perspective(vAb, zFar, zNear, fov, aspect)}`)
-        // )
-        //     console.log(`From: ${this.perspective(vAf, zFar, zNear, fov, aspect)}\nTo: ${this.perspective(vAb, zFar, zNear, fov, aspect)}`)
-        //     console.log(`From: ${this.perspective(vBf, zFar, zNear, fov, aspect)}\nTo: ${this.perspective(vBb, zFar, zNear, fov, aspect)}`)
-        //     console.log(`From: ${this.perspective(vCf, zFar, zNear, fov, aspect)}\nTo: ${this.perspective(vCb, zFar, zNear, fov, aspect)}`)
-        //     console.log(`From: ${this.perspective(vDf, zFar, zNear, fov, aspect)}\nTo: ${this.perspective(vDb, zFar, zNear, fov, aspect)}`)
-
-        //Note: drawLine takes 2d vector, but 3d vector works here since they have similar member variables
-        // this.drawLine(this.perspective(vAf, zFar, zNear, fov, aspect), this.perspective(vBf, zFar, zNear, fov, aspect), RED)
-        // this.drawLine(this.perspective(vBf, zFar, zNear, fov, aspect), this.perspective(vCf, zFar, zNear, fov, aspect), RED)
-        // this.drawLine(this.perspective(vCf, zFar, zNear, fov, aspect), this.perspective(vDf, zFar, zNear, fov, aspect), RED)
-        // this.drawLine(this.perspective(vDf, zFar, zNear, fov, aspect), this.perspective(vAf, zFar, zNear, fov, aspect), RED)
-        //
-        // this.drawLine(this.perspective(vAb, zFar, zNear, fov, aspect), this.perspective(vBb, zFar, zNear, fov, aspect), GREEN)
-        // this.drawLine(this.perspective(vBb, zFar, zNear, fov, aspect), this.perspective(vCb, zFar, zNear, fov, aspect), GREEN)
-        // this.drawLine(this.perspective(vCb, zFar, zNear, fov, aspect), this.perspective(vDb, zFar, zNear, fov, aspect), GREEN)
-        // this.drawLine(this.perspective(vDb, zFar, zNear, fov, aspect), this.perspective(vAb, zFar, zNear, fov, aspect), GREEN)
-        //
-        // this.drawLine(this.perspective(vAf, zFar, zNear, fov, aspect), this.perspective(vAb, zFar, zNear, fov, aspect), BLUE)
-        // this.drawLine(this.perspective(vBf, zFar, zNear, fov, aspect), this.perspective(vBb, zFar, zNear, fov, aspect), BLUE)
-        // this.drawLine(this.perspective(vCf, zFar, zNear, fov, aspect), this.perspective(vCb, zFar, zNear, fov, aspect), BLUE)
-        // this.drawLine(this.perspective(vDf, zFar, zNear, fov, aspect), this.perspective(vDb, zFar, zNear, fov, aspect), BLUE)
         // TODO: Use full perspective projection
         this.drawLine(this.perspectiveProj(vAf, viewportDist), this.perspectiveProj(vBf, viewportDist), RED)
         this.drawLine(this.perspectiveProj(vBf, viewportDist), this.perspectiveProj(vCf, viewportDist), RED)
@@ -716,8 +685,8 @@ export class Application {
         ]
 
         const scene = new Scene(vertices, [
-            new ModelInstance(indices, new Transform(new Vec3(0, 0, 1), new Vec3(0, 1.75, 0), 0.5), new Vec3(128, 255, 25), "Cube 1"),
-            // new ModelInstance(indices, new Transform(new Vec3(0, 0, 5), new Vec3(0, 1, 2),), new Vec3(20, 120, 180), "Cube 2")
+            new ModelInstance(indices, new Transform(new Vec3(2, 2, 8), new Vec3(0, 0, 0), 1), new Vec3(128, 255, 25), "Cube 1"),
+            new ModelInstance(indices, new Transform(new Vec3(4, 4, 8), new Vec3(0, 0, 0),), new Vec3(20, 120, 180), "Cube 2")
         ])
 
         this.renderScene(scene);
@@ -748,11 +717,7 @@ export class Application {
                 // const translatedVec = new Vec3(0, 0, 0);
                 // Vec3.Add(translatedVec, vertices[index], instance.transform.position)
                 const translatedVec = instance.transform.applyAffine(vertices[index])
-                const perspectiveProj = Mat4.persScreenProj(1, 4, 4, this.width, this.height)
-                console.log(`Projection Working: ${this.viewportToCanvas(this.perspectiveProj(translatedVec.castVec3(), 4), 10, 10, this.width, this.height)}`)
-                console.log(`Applied Transform: ${perspectiveProj.vecMul(translatedVec)}`)
-                console.log(`Applied Z Divide: ${perspectiveProj.vecMul(translatedVec).castVec3().perspDiv()}`)
-                // triangleVerts.push(this.viewportToCanvas(this.perspectiveProj(translatedVec.castVec3(), 4), 10, 10, this.width, this.height))
+                const perspectiveProj = Mat4.persScreenProj(1, 1, 1, this.width, this.height)
                 triangleVerts.push(perspectiveProj.vecMul(translatedVec).castVec3().perspDiv())
             }
             // console.log("Triangle Verts: ", triangleVerts)
