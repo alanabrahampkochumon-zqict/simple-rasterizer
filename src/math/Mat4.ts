@@ -97,6 +97,48 @@ export class Mat4 {
 
 
     /**
+     * Compute the product of this matrix with another and return a new matrix.
+     *
+     * @param matrix The matrix to multiply
+     *
+     * @return A reference to this matrix.
+     */
+    matMulBin(matrix: Mat4): Mat4 {
+
+        // First Row
+        const m00 = this.data[0] * matrix.data[0] + this.data[4] * matrix.data[1] + this.data[8] * matrix.data[2] + this.data[12] * matrix.data[3]
+        const m01 = this.data[0] * matrix.data[4] + this.data[4] * matrix.data[5] + this.data[8] * matrix.data[6] + this.data[12] * matrix.data[7]
+        const m02 = this.data[0] * matrix.data[8] + this.data[4] * matrix.data[9] + this.data[8] * matrix.data[10] + this.data[12] * matrix.data[11]
+        const m03 = this.data[0] * matrix.data[12] + this.data[4] * matrix.data[13] + this.data[8] * matrix.data[14] + this.data[12] * matrix.data[15]
+
+        // Second Row
+        const m10 = this.data[1] * matrix.data[0] + this.data[5] * matrix.data[1] + this.data[9] * matrix.data[2] + this.data[13] * matrix.data[3]
+        const m11 = this.data[1] * matrix.data[4] + this.data[5] * matrix.data[5] + this.data[9] * matrix.data[6] + this.data[13] * matrix.data[7]
+        const m12 = this.data[1] * matrix.data[8] + this.data[5] * matrix.data[9] + this.data[9] * matrix.data[10] + this.data[13] * matrix.data[11]
+        const m13 = this.data[1] * matrix.data[12] + this.data[5] * matrix.data[13] + this.data[9] * matrix.data[14] + this.data[13] * matrix.data[15]
+
+        // Third Row
+        const m20 = this.data[2] * matrix.data[0] + this.data[6] * matrix.data[1] + this.data[10] * matrix.data[2] + this.data[14] * matrix.data[3]
+        const m21 = this.data[2] * matrix.data[4] + this.data[6] * matrix.data[5] + this.data[10] * matrix.data[6] + this.data[14] * matrix.data[7]
+        const m22 = this.data[2] * matrix.data[8] + this.data[6] * matrix.data[9] + this.data[10] * matrix.data[10] + this.data[14] * matrix.data[11]
+        const m23 = this.data[2] * matrix.data[12] + this.data[6] * matrix.data[13] + this.data[10] * matrix.data[14] + this.data[14] * matrix.data[15]
+
+        // Fourth Row
+        const m30 = this.data[3] * matrix.data[0] + this.data[7] * matrix.data[1] + this.data[11] * matrix.data[2] + this.data[15] * matrix.data[3]
+        const m31 = this.data[3] * matrix.data[4] + this.data[7] * matrix.data[5] + this.data[11] * matrix.data[6] + this.data[15] * matrix.data[7]
+        const m32 = this.data[3] * matrix.data[8] + this.data[7] * matrix.data[9] + this.data[11] * matrix.data[10] + this.data[15] * matrix.data[11]
+        const m33 = this.data[3] * matrix.data[12] + this.data[7] * matrix.data[13] + this.data[11] * matrix.data[14] + this.data[15] * matrix.data[15]
+
+
+        return new Mat4(
+            m00, m01, m02, m03,
+            m10, m11, m12, m13,
+            m20, m21, m22, m23,
+            m30, m31, m32, m33
+        );
+    }
+
+    /**
      * Compute the product of this matrix with a column vector.
      *
      * @param vec The vector to multiply.

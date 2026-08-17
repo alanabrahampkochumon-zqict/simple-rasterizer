@@ -47,11 +47,20 @@ export class Transform {
     position: Vec3
     orientation: Vec3 // X, Y, and Z rotation
     scale: number // TODO: Change to vector
+    transformMat: Mat4
 
     constructor(position: Vec3, orientation: Vec3 = new Vec3(0, 0, 0), scale: number = 1) {
         this.position = position
         this.orientation = orientation
         this.scale = scale
+        this.transformMat = Mat4.I()
+        this.transformMat = new Mat4(
+            scale, 0, 0, position.x,
+            0, scale, 0, position.y,
+            0, 0, scale, position.z,
+            0, 0, 0, 1
+        )
+        this.transformMat = this.transformMat.matMul(Mat4.rotX(orientation.x).matMul(Mat4.rotY(orientation.y)).matMul(Mat4.rotZ(orientation.z)))
     }
 
     // Applies transformation in translation, rotation, scale

@@ -3,6 +3,7 @@ import {Vec2} from "./math/vec2.ts";
 import {MeshObject} from "./MeshObject.ts";
 import {ModelInstance, Scene, Transform} from "./Scene.ts";
 import {Mat4} from "@/math/Mat4.ts";
+import {Vec4} from "@/math/Vec4.ts";
 
 export class Application {
     canvas: HTMLCanvasElement;
@@ -369,7 +370,7 @@ export class Application {
 
                 Vec3.Mul(interpolatedColor, color, hSegment[xDelta]) // Subtraction required to bring the index down to 0..n
 
-                this.#putPixel(x, y, color)
+                this.#putPixelNormalized(x, y, color)
             }
         }
 
@@ -392,6 +393,9 @@ export class Application {
         return output;
     }
 
+    rotationY = 0;
+    rotationSpeed = 0.01;
+
     run() {
         this.clearScreen()
         // TODO: Add back
@@ -400,12 +404,12 @@ export class Application {
         //     this.renderObject(this.mesh.vertices.map(vertex => this.rotate(new Vec3(0, 0, 0), vertex, this.translation)), this.mesh.indices)
         // this.testRender()
         // this.translation += 0.05
+        this.rotationY += this.rotationSpeed;
         this.testSceneRender()
         this.updateScreen()
         // requestAnimationFrame(() => this.run())
 
     }
-
 
 
     /**
@@ -475,7 +479,6 @@ export class Application {
     }
 
 
-    // TODO: Color
     renderObject(vertices: Vec3[], indices: Vec3[]) {
         const viewportDistance = 2
         const viewportWidth = 2
@@ -484,7 +487,6 @@ export class Application {
         const projectVertices = vertices.map((vertex) => this.viewportToCanvas(this.perspectiveProj(vertex, viewportDistance), viewportWidth, viewportHeight, this.width, this.height))
         for (const {x, y, z} of indices) {
             this.drawTriangle(projectVertices[x], projectVertices[y], projectVertices[z], new Vec3(255, 255, 0))
-            //this.drawTriangleWireframe(projectVertices[r], projectVertices[g], projectVertices[b], new Vec3(0, 255, 0))
         }
 
         this.updateScreen()
@@ -603,11 +605,6 @@ export class Application {
         const BLUE = new Vec3(0, 0, 120)
         const viewportDist = 2
 
-        const fov = Math.PI / 3;
-        const aspect = this.width / this.height
-        const zFar = 10000
-        const zNear = 0.1
-
         // TODO: Use full perspective projection
         this.drawLine(this.perspectiveProj(vAf, viewportDist), this.perspectiveProj(vBf, viewportDist), RED)
         this.drawLine(this.perspectiveProj(vBf, viewportDist), this.perspectiveProj(vCf, viewportDist), RED)
@@ -685,8 +682,8 @@ export class Application {
         ]
 
         const scene = new Scene(vertices, [
-            new ModelInstance(indices, new Transform(new Vec3(2, 2, 8), new Vec3(0, 0, 0), 1), new Vec3(128, 255, 25), "Cube 1"),
-            new ModelInstance(indices, new Transform(new Vec3(4, 4, 8), new Vec3(0, 0, 0),), new Vec3(20, 120, 180), "Cube 2")
+            new ModelInstance(indices, new Transform(new Vec3(0, -2, 12), new Vec3(0, Math.PI / 4, 0), 1), new Vec3(128, 255, 25), "Cube 1"),
+            new ModelInstance(indices, new Transform(new Vec3(0, 2, 12), new Vec3(0, 0, 0),), new Vec3(20, 120, 180), "Cube 2")
         ])
 
         this.renderScene(scene);
@@ -711,16 +708,29 @@ export class Application {
      */
     renderInstance(vertices: Vec3[], instance: ModelInstance) {
 
+        const camera = new Mat4(
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1
+        );
         for (const triangle of instance.triangleIndices) {
             const triangleVerts = []
             for (const index of [triangle.x, triangle.y, triangle.z]) {
-                // const translatedVec = new Vec3(0, 0, 0);
-                // Vec3.Add(translatedVec, vertices[index], instance.transform.position)
-                const translatedVec = instance.transform.applyAffine(vertices[index])
+
+                // const translatedVec = instance.transform.applyAffine(vertices[index])
                 const perspectiveProj = Mat4.persScreenProj(1, 1, 1, this.width, this.height)
-                triangleVerts.push(perspectiveProj.vecMul(translatedVec).castVec3().perspDiv())
+                // TODO: Refactor
+                // const camViewMatrix = camera.matMul(instance.transform.transformMat)
+                const i = Mat4.I()
+                i.data[3] = 4
+                console.log(camera)
+                const camViewMatrix = camera.matMulBin(instance.transform.transformMat)
+                const newVec = camViewMatrix.vecMul(Vec4.Point3(vertices[index].x, vertices[index].y, vertices[index].z))
+
+
+                triangleVerts.push(perspectiveProj.vecMul(newVec).castVec3().perspDiv())
             }
-            // console.log("Triangle Verts: ", triangleVerts)
             this.drawTriangle(triangleVerts[0], triangleVerts[1], triangleVerts[2], instance.color);
         }
     }
