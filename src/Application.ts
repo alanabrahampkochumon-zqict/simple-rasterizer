@@ -96,7 +96,6 @@ export class Application {
     // The coordinates we are getting are from -width/2 to width/2
     // and height/2(top) to -height/2(bottom)
     // but we need to convert that to 0 to width and 0 to height
-    // TODO: Update all Vec3 to Vec3
     #putPixelNormalized(x: number, y: number, color: Vec3) {
         x = x + this.width / 2;
         y = -y + this.height / 2;
@@ -116,35 +115,6 @@ export class Application {
 
     updateScreen() {
         this.context.putImageData(this.targetSurface, 0, 0);
-    }
-
-
-    #drawLineH_depr(p0: Vec2, p1: Vec2, color: Vec3) {
-        // Slope(m) = change in y / change in x
-        // Line Eq: y = mx + b
-
-        // If line is moving from right to left
-        // since the drawing order doesn't matter
-        // we can just swap them
-        if (p0.x > p1.x) {
-            const temp = p0
-            p0 = p1
-            p1 = temp
-        }
-
-        // Optimization
-        // Since the slope is one factor that is changing from y0 to y1
-        // We can calculate the initial y0 and add slope to it to get the next y
-        const m = (p1.y - p0.y) / (p1.x - p0.x)
-        let y = p0.y
-
-
-        // Note: Must iterate until p1.x inclusive
-        for (let x = p0.x; x <= p1.x; ++x) {
-            this.#putPixel(x, y, color)
-            y += m
-        }
-
     }
 
     #drawLineV(p0: Vec2, p1: Vec2, color: Vec3) {
@@ -192,22 +162,6 @@ export class Application {
 
     }
 
-    #drawLineV_depr(p0: Vec2, p1: Vec2, color: Vec3) {
-        if (p0.y > p1.y) {
-            const temp = p0
-            p0 = p1
-            p1 = temp
-        }
-
-        // Slope is flipped, so m = δx/δy
-        const m = (p1.x - p0.x) / (p1.y - p0.y)
-        let x = p0.x
-
-        for (let y = p0.y; y < p1.y; ++y) {
-            this.#putPixel(x, y, color)
-            x += m
-        }
-    }
 
     /**
      * Draws a line between p0 and p1.
@@ -225,9 +179,9 @@ export class Application {
         const deltaX = Math.abs(p1.x - p0.x)
         const deltaY = Math.abs(p1.y - p0.y)
         if (deltaX > deltaY) {
-            this.#drawLineH_depr(p0, p1, color)
+            this.#drawLineH(p0, p1, color)
         } else {
-            this.#drawLineV_depr(p0, p1, color)
+            this.#drawLineV(p0, p1, color)
         }
     }
 
@@ -423,14 +377,22 @@ export class Application {
 
 
     render() {
-        this.#drawLineV(new Vec2(0, 0), new Vec2(100, 100), new Vec3(255, 255, 255))
-        this.#drawLineV(new Vec2(0, -1000), new Vec2(0, 1000), new Vec3(0, 255, 255))
+        this.testDrawHAndV()
         // this.colorUVTest()
         //this.drawLineTest()
         // this.drawTriWireframeTest()
         //this.drawCubeProjTest()
         //this.drawCubeProjTest2()
         //this.drawCubeTest()
+    }
+
+    testDrawHAndV() {
+        this.#drawLineV(new Vec2(0, 0), new Vec2(100, 100), new Vec3(255, 255, 255))
+        this.#drawLineV(new Vec2(0, -1000), new Vec2(0, 1000), new Vec3(0, 255, 255))
+        this.#drawLineV(new Vec2(0, 0), new Vec2(0, -100), new Vec3(0, 0, 255))
+        this.#drawLineV(new Vec2(0, 0), new Vec2(0, 100), new Vec3(0, 255, 0))
+        this.#drawLineH(new Vec2(0, 0), new Vec2(100, 0), new Vec3(0, 255, 0))
+        this.#drawLineH(new Vec2(0, 0), new Vec2(-100, 0), new Vec3(0, 0, 255))
     }
 
 
