@@ -708,7 +708,20 @@ export class Application {
      */
     renderInstance(vertices: Vec3[], instance: ModelInstance) {
 
-        const camera = Mat4.makeAffine(0, 0, 0, 0, 0, 0);
+        // Camera transforms are applied in reverse since when we me the camera to the left
+        // the view moves to the right and so on
+        // so we need to take the inverse transform matrix, which for rotation is the transpose
+        // and for translation is the negated values, applied in the opposite direction so Translation * Rotation
+        // since (AB)^T = B^T . A^T
+        const camTx = 0.0, camTy = 0.0, camTz = 0.0;
+        const cameraTranslation = new Mat4(1, 0, 0, -camTx,
+            0, 1, 0, -camTy,
+            0, 0, 1, -camTz,
+            0, 0, 0, 1)
+        const cameraRotation = Mat4.rotX(0).matMulBin(Mat4.rotY(0).matMulBin(Mat4.rotZ(0))).transpose()
+        const cameraTransform = cameraTranslation.matMulBin(cameraRotation)
+
+
         for (const triangle of instance.triangleIndices) {
             const triangleVerts = []
             for (const index of [triangle.x, triangle.y, triangle.z]) {
@@ -716,7 +729,7 @@ export class Application {
                 // const translatedVec = instance.transform.applyAffine(vertices[index])
                 const perspectiveProj = Mat4.persScreenProj(1, 1, 1, this.width, this.height)
                 // TODO: Refactor
-                const camViewMatrix = camera.matMulBin(instance.transform.transformMat)
+                const camViewMatrix = cameraTransform.matMulBin(instance.transform.transformMat)
                 const newVec = camViewMatrix.vecMul(Vec4.Point3(vertices[index].x, vertices[index].y, vertices[index].z))
 
 

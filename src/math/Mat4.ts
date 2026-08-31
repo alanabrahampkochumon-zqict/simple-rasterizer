@@ -295,5 +295,41 @@ export class Mat4 {
         return mat
     }
 
+    /**
+     * Get the transpose(row-column swapped along the diagonal)
+     */
+    transpose(): Mat4 {
+        return new Mat4(
+            this.data[0], this.data[1], this.data[2], this.data[3],
+            this.data[4], this.data[5], this.data[6], this.data[7],
+            this.data[8], this.data[9], this.data[10], this.data[11],
+            this.data[12], this.data[13], this.data[14], this.data[15]
+        )
+    }
+
+
+    /**
+     * Returns a camera transform matrix as if the camera was an entity.
+     *
+     * @privateRemarks Since camera matrix is an inverse transformation matrix and we can calculate it faster
+     *                 without taking the actual inverse(via transpose), we can separate it to make the computation faster.
+     *
+     * @param rX Rotation in the x-axis
+     * @param rY Rotation in the y-axis
+     * @param rZ Rotation in the z-axis
+     * @param tX Translation in the x-axis
+     * @param tY Translation in the y-axis
+     * @param tZ Translation in the z-axis
+     */
+    static makeCameraTransform(rX: number, rY: number, rZ: number, tX: number, tY: number, tZ: number) {
+        let mat = this.rotX(rX).matMulBin(this.rotY(rY).matMulBin(this.rotZ(rZ)))
+        mat = mat.transpose() // For a rotation matrix transpose is the inverse
+
+        mat.data[3] = -tX;
+        mat.data[7] = -tY;
+        mat.data[11] = -tZ;
+        return mat
+    }
+
 
 }
