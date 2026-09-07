@@ -33,7 +33,7 @@ const SliderInput = ({
             <Slider.Root id={id} min={minValue} className="relative flex items-center w-full h-5 touch-none select-none"
                          defaultValue={[defaultValue]} max={maxValue} step={step} value={[value]}
                          onValueChange={(values) => onChange(values[0])}>
-                <Slider.Track className="bg-slate-300 flex-1 relative rounded-full h-1">
+                <Slider.Track className="bg-slate-100 shadow-inner flex-1 relative rounded-full h-1">
                     <Slider.Range className="absolute bg-rose-600 rounded-full h-full"/>
                 </Slider.Track>
                 <Slider.Thumb
