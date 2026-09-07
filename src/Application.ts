@@ -12,7 +12,8 @@ export class Application {
     height: number;
     targetSurface: ImageData;
     clearColor: Vec3;
-    mesh: MeshObject
+    mesh: MeshObject;
+    camTranslation: Vec3;
 
     constructor(canvas: HTMLCanvasElement) {
         this.canvas = canvas;
@@ -30,6 +31,7 @@ export class Application {
             canvas.height,
         );
         this.clearColor = new Vec3(0, 0, 0);
+        this.camTranslation = new Vec3(0, 0, 0);
 
         this.resize()
     }
@@ -712,8 +714,9 @@ export class Application {
         // the view moves to the right and so on
         // so we need to take the inverse transform matrix, which for rotation is the transpose
         // and for translation is the negated values, applied in the opposite direction so Translation * Rotation
-        // since (AB)^T = B^T . A^T
-        const camTx = 0.0, camTy = 0.0, camTz = 0.0;
+        // since (A.B)^T = B^T . A^T
+        const camTx = this.camTranslation.x, camTy = this.camTranslation.y, camTz = this.camTranslation.z;
+        // NOTE: Inverse of translation matrix is the negated components not transpose(since translation matrix isn't orthogonal)
         const cameraTranslation = new Mat4(1, 0, 0, -camTx,
             0, 1, 0, -camTy,
             0, 0, 1, -camTz,
