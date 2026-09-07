@@ -1,6 +1,5 @@
 import {useEffect, useRef, useState} from 'react'
 import {Application} from "./Application.ts";
-import {IVec3} from "./math/ivec3.ts";
 import {Controls} from "./Controls.tsx";
 import type {MeshObject} from "./MeshObject.ts";
 import {Vec3} from "./math/Vec3.ts";
@@ -17,14 +16,14 @@ function App() {
         if (canvasRef.current != null) {
             const app = new Application(canvasRef.current);
             app.camTranslation = cameraCoordinates
-            app.setClearColor(new IVec3(27, 27, 27));
+            app.setClearColor(new Vec3(27, 27, 27));
             app.clearScreen();
             if (mesh != undefined)
                 app.submitMesh(mesh)
             app.run()
 
 
-            const onResizeEvt = (evt) => {
+            const onResizeEvt = () => {
                 // console.log(`Event:${evt}`)
                 const width = canvasRef.current?.width || windowParams.width
                 const height = canvasRef.current?.height || windowParams.height

@@ -37,7 +37,7 @@ const SliderInput = ({
                     <Slider.Range className="absolute bg-rose-600 rounded-full h-full"/>
                 </Slider.Track>
                 <Slider.Thumb
-                    className="block w-8 h-5 shadow-md shadow-gray-300 rounded-full bg-white cursor-pointer focus:outline-none focus:ring-1 focus:ring-rose-600"
+                    className="transition-all block w-8 h-5 shadow-md shadow-gray-300 rounded-full bg-white cursor-pointer focus:outline-none focus:ring-1 focus:ring-rose-600"
                     aria-label={ariaLabel || "Slider Input"}/>
             </Slider.Root>
         </div>
