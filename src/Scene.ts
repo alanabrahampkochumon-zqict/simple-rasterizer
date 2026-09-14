@@ -3,32 +3,57 @@ import {Mat4} from "./math/Mat4.ts";
 import {Mat3} from "./math/Mat3.ts";
 import {Vec4} from "@/math/Vec4.ts";
 
-
+// TODO: Update to use triangles
+// Since scene data is taken in form of vertices and indices make the conversion internal to the scene.
 export class Scene {
-    vertices: Vec3[]
+    vertices: Vec3[] // TODO: REMOVE
     instances: ModelInstance[]
 
     /**
      * Create a scene with shared vertex information.
      *
      * @param vertices The collection of all the vertices in the scene.
-     * @param instance All model instances in the scene.
+     * @param instances All model instances in the scene.
      */
     constructor(vertices: Vec3[], instances: ModelInstance[]) {
         this.vertices = vertices
         this.instances = instances
+        for (const instance of instances) {
+            this.formTriangles(instance.triangleIndices, vertices)
+        }
+    }
+
+    // TODO: Work from here
+    formTriangles(indices: Vec3[], vertices: Vec3[]) {
+        for (const index of indices) {
+            this.instances(new Triangle(vertices[index.x], vertices[index.y], vertices[index.z]))
+        }
+    }
+}
+
+export class Triangle {
+    v0: Vec3
+    v1: Vec3
+    v2: Vec3
+
+    constructor(v0: Vec3, v1: Vec3, v2: Vec3) {
+        this.v0 = v0
+        this.v1 = v1
+        this.v2 = v2
     }
 }
 
 export class ModelInstance {
     name: string
     transform: Transform
+    /// @deprecated.
     triangleIndices: Vec3[]
+    triangles: Triangle[] = []
     color: Vec3
 
     /**
      * Create a model instance that share vertices in the scene.
-     *
+     * @deprecated
      * @param triangleIndices The indices for the vertices that make up each triangle of the model.
      * @param transform       The model transformation
      * @param color           The color of the object
@@ -39,6 +64,15 @@ export class ModelInstance {
         this.triangleIndices = triangleIndices
         this.transform = transform
         this.color = color
+    }
+
+    // TODO: Update to ctor
+    addTriangles(triangles: Triangle[]) {
+        this.triangles = triangles
+    }
+
+    pushTriangle(triangle: Triangle) {
+        this.triangles.push(triangle)
     }
 }
 
