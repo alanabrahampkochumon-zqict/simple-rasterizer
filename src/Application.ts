@@ -4,6 +4,7 @@ import {MeshObject} from "./MeshObject.ts";
 import {ModelInstance, Scene, Transform} from "./Scene.ts";
 import {Mat4} from "@/math/Mat4.ts";
 import {Vec4} from "@/math/Vec4.ts";
+import {toRadians} from "@/math/Utils.ts";
 
 export class Application {
     canvas: HTMLCanvasElement;
@@ -14,6 +15,7 @@ export class Application {
     clearColor: Vec3;
     mesh: MeshObject;
     camTranslation: Vec3;
+    camRotation: Vec3
 
     constructor(canvas: HTMLCanvasElement) {
         this.canvas = canvas;
@@ -703,6 +705,17 @@ export class Application {
         }
     }
 
+// TODO: Move to utils
+    static toRadians(degrees: number) {
+        return 0.5 * degrees / Math.PI;
+    }
+
+    cameraRotationToRadians() {
+        this.camRotation.x = toRadians(this.camRotation.x)
+        this.camRotation.y = toRadians(this.camRotation.y)
+        this.camRotation.z = toRadians(this.camRotation.z)
+    }
+
     /**
      * Render a single instance from the scene.
      * @param vertices The whole scene vertices.
@@ -721,7 +734,8 @@ export class Application {
             0, 1, 0, -camTy,
             0, 0, 1, -camTz,
             0, 0, 0, 1)
-        const cameraRotation = Mat4.rotX(0).matMulBin(Mat4.rotY(0).matMulBin(Mat4.rotZ(0))).transpose()
+        // this.cameraRotationToRadians()
+        const cameraRotation = Mat4.rotX(this.camRotation.x).matMulBin(Mat4.rotY(this.camRotation.y).matMulBin(Mat4.rotZ(this.camRotation.z))).transpose()
         const cameraTransform = cameraTranslation.matMulBin(cameraRotation)
 
 

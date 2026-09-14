@@ -7,15 +7,19 @@ import {Vec3} from "./math/Vec3.ts";
 
 const WindowParams = {width: 0, height: 0}
 
+
 function App() {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const [mesh, setMesh] = useState<MeshObject | undefined>(undefined)
-    const [cameraCoordinates, setCameraCoordinates] = useState<Vec3>(new Vec3(0, 0, 0));
+    const [cameraLocation, setCameraLocation] = useState<Vec3>(new Vec3(0, 0, 0));
+    const [cameraRotation, setCameraRotation] = useState<Vec3>(new Vec3(0, 0, 0));
+
     const [windowParams, setWindowParams] = useState(WindowParams);
     useEffect(() => {
         if (canvasRef.current != null) {
             const app = new Application(canvasRef.current);
-            app.camTranslation = cameraCoordinates
+            app.camTranslation = cameraLocation
+            app.camRotation = cameraRotation
             app.setClearColor(new Vec3(27, 27, 27));
             app.clearScreen();
             if (mesh != undefined)
@@ -45,7 +49,7 @@ function App() {
 //             app.renderObject(mesh.vertices.map(vertex => Vec3.Add(new Vec3(0, 0, 0), vertex, translation)), mesh.indices)
 //         })
         }
-    }, [canvasRef, windowParams.height, windowParams.width, mesh, cameraCoordinates])
+    }, [canvasRef, windowParams.height, windowParams.width, mesh, cameraLocation])
 
 
     useEffect(() => {
@@ -55,7 +59,12 @@ function App() {
     return <div className="w-screen h-screen grid grid-cols-[1fr_400px]">
         <canvas ref={canvasRef} className="w-full h-full"/>
         {/*<canvas className="w-full h-full bg-yellow-300"/>*/}
-        <Controls setMesh={setMesh} updateCameraCoordinates={cameraControls => setCameraCoordinates(cameraControls)}/>
+        <Controls setMesh={setMesh}
+                  updateCamera={(cameraLocation, cameraRotation) => {
+                      setCameraLocation(cameraLocation)
+                      setCameraRotation(cameraRotation)
+                  }
+                  }/>
     </div>
 }
 
