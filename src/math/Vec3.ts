@@ -15,6 +15,40 @@ export class Vec3 {
         return new Vec3(value, value, value);
     }
 
+    add(other: Vec3): Vec3 {
+        const res = Vec3.fill(0);
+        res.x = this.x + other.x;
+        res.y = this.y + other.y;
+        res.z = this.z + other.z;
+
+        return res;
+    }
+
+    sub(other: Vec3): Vec3 {
+        const res = Vec3.fill(0);
+        res.x = this.x - other.x;
+        res.y = this.y - other.y;
+        res.z = this.z - other.z;
+
+        return res;
+    }
+
+    div(value: number) {
+        const res = Vec3.fill(0);
+        res.x = this.x / value;
+        res.y = this.y / value;
+        res.z = this.z / value;
+
+        return res;
+    }
+
+    distSq(other: Vec3): number {
+        return this.dot(other);
+    }
+
+    dist(other: Vec3): number {
+        return Math.sqrt(this.distSq(other));
+    }
 
     /**
      * Compute the dot product between this vector and another.
