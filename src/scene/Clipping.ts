@@ -123,7 +123,11 @@ function signedDistance(plane: Plane, vertex: Vec3) {
 }
 
 
-function intersection(a: DistanceVertPair, b: DistanceVertPair, plane: Plane) {
-    // TODO: Impl
-    return new Vec3(0, 0, 0);
+function intersection(v0: Vec3, v1: Vec3, plane: Plane) {
+    const t = (-plane.D - plane.normal.dot(v0)) / (plane.normal.dot(v1) - plane.normal.dot(v1))
+    return new Vec3(
+        v0.x + t * (v1.x - v0.x),
+        v0.y + t * (v1.y - v0.y),
+        v0.z + t * (v1.z - v0.z)
+    )
 }
