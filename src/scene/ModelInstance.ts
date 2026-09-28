@@ -1,6 +1,6 @@
 import type Triangle from "@/scene/Triangle.ts";
 import {Vec3} from "@/math/Vec3.ts";
-import type Transform from "@/scene/Transform.ts";
+import Transform from "@/scene/Transform.ts";
 import BoundingSphere from "@/scene/BoundingSphere.ts";
 
 export default class ModelInstance {
@@ -8,15 +8,15 @@ export default class ModelInstance {
     transform: Transform
     triangles: Triangle[]
     color: Vec3
-    sphere: BoundingSphere /// Bounding sphere for model culling
+    boundingSphere: BoundingSphere /// Bounding sphere for model culling
 
-    constructor(triangles: Triangle[], transform: Transform, color: Vec3 = Vec3.fill(255), name: string) {
+    constructor(triangles: Triangle[] = [], transform: Transform = Transform.default(), color: Vec3 = Vec3.fill(255), name: string = "") {
         this.name = name
         this.triangles = triangles;
         this.transform = transform
         this.color = color
 
-        this.sphere = new BoundingSphere()
+        this.boundingSphere = new BoundingSphere()
         this.generateBoundingSphere()
     }
 
@@ -38,7 +38,7 @@ export default class ModelInstance {
             return radius;
         }, 0);
 
-        this.sphere.radius = Math.sqrt(radiusSq);
-        this.sphere.center = center;
+        this.boundingSphere.radius = Math.sqrt(radiusSq);
+        this.boundingSphere.center = center;
     }
 }

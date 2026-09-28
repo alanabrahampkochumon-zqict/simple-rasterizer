@@ -21,6 +21,12 @@ export default class Transform {
         this.transformMat = this.transformMat.matMul(Mat4.rotX(orientation.x).matMul(Mat4.rotY(orientation.y)).matMul(Mat4.rotZ(orientation.z)))
     }
 
+    static default() {
+        return new Transform(
+            Vec3.fill(0)
+        )
+    }
+
     // Applies transformation in translation, rotation, scale
     /**
      * @deprecated
