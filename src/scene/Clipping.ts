@@ -62,10 +62,6 @@ function clipTrianglesAgainstPlane(triangles: Triangle[], plane: Plane): Triangl
     return clippedTriangles;
 }
 
-type DistanceVertPair = {
-    vert: Vec3,
-    distance: number
-}
 
 function clipTriangle(triangle: Triangle, plane: Plane): Triangle[] {
     const d1 = signedDistance(plane, triangle.v1)
@@ -75,22 +71,22 @@ function clipTriangle(triangle: Triangle, plane: Plane): Triangle[] {
     // Filter out the positive distance
     // This can be used to determine which points are inside or outside the clipping plane.
 
-    const insideVerts: DistanceVertPair[] = []
-    const outsideVerts: DistanceVertPair[] = []
+    const insideVerts: Vec3[] = []
+    const outsideVerts: Vec3[] = []
     if (d1 > 0) {
-        insideVerts.push({vert: triangle.v1, distance: d1})
+        insideVerts.push(triangle.v1)
     } else {
-        outsideVerts.push({vert: triangle.v1, distance: d1})
+        outsideVerts.push(triangle.v1)
     }
     if (d2 > 0) {
-        insideVerts.push({vert: triangle.v2, distance: d2})
+        insideVerts.push(triangle.v2)
     } else {
-        outsideVerts.push({vert: triangle.v2, distance: d2})
+        outsideVerts.push(triangle.v2)
     }
     if (d3 > 0) {
-        insideVerts.push({vert: triangle.v3, distance: d3})
+        insideVerts.push(triangle.v3)
     } else {
-        outsideVerts.push({vert: triangle.v3, distance: d3})
+        outsideVerts.push(triangle.v3)
     }
 
     // All the vertices are inside the bounding box so return the triangle.
@@ -103,15 +99,15 @@ function clipTriangle(triangle: Triangle, plane: Plane): Triangle[] {
         // vertices as the points of intersection
         const firstVertex = intersection(insideVerts[0], outsideVerts[0], plane)
         const secondVertex = intersection(insideVerts[0], outsideVerts[1], plane)
-        return [new Triangle(firstVertex, secondVertex, insideVerts[0].vert)]
+        return [new Triangle(firstVertex, secondVertex, insideVerts[0])]
     } else if (insideVerts.length == 2) { // Divide the shapes into two triangles
 
         const firstVertex = intersection(insideVerts[0], outsideVerts[0], plane)
         const secondVertex = intersection(insideVerts[1], outsideVerts[0], plane)
 
         return [
-            new Triangle(insideVerts[0].vert, insideVerts[1].vert, firstVertex),
-            new Triangle(insideVerts[0].vert, firstVertex, secondVertex)]
+            new Triangle(insideVerts[0], insideVerts[1], firstVertex),
+            new Triangle(insideVerts[0], firstVertex, secondVertex)]
     }
     return []
 }
