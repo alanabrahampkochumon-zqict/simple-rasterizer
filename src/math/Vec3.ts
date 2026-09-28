@@ -11,6 +11,10 @@ export class Vec3 {
         this.z = z;
     }
 
+    static fill(value: number) {
+        return new Vec3(value, value, value);
+    }
+
 
     /**
      * Compute the dot product between this vector and another.

@@ -220,12 +220,12 @@ function clipTriangle(triangle: Vec3, plane: Plane): Vec3[] {
         // vertices as the points of intersection
         const firstVertex = intersection(distances[0][1], outsideDistances[0][1], plane)
         const secondVertex = intersection(distances[0][1], outsideDistances[1][1], plane)
-        return Vec3(firstVertex, secondVertex, distances[0][1])
+        return [new Vec3(firstVertex, secondVertex, distances[0][1])]
     } else if (distances.length == 2) { // Divide the shapes into two triangles
         const firstIntersection = intersection(distances[0][1], outsideDistances[0][1], plane)
         const secondIntersection = intersection(distances[1][1], outsideDistances[0][1], plane)
 
-        return [Vec3(distances[0][0], distances[0][1], firstIntersection), Vec3(distances[0][0], distances[0][1], secondIntersection)]
+        return [new Vec3(distances[0][0], distances[0][1], firstIntersection), new Vec3(distances[0][0], distances[0][1], secondIntersection)]
     }
     return []
 }
@@ -237,4 +237,5 @@ function signedDistance(plane: Plane, vertex: Vec3) {
 }
 
 
-function intersection(a, b) {// TODO: Impl}
+function intersection(a, b) {// TODO: Impl
+}
