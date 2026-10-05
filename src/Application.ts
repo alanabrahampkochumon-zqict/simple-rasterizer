@@ -1,10 +1,13 @@
 import {Vec3} from "./math/Vec3.ts"
 import {Vec2} from "./math/vec2.ts";
 import {MeshObject} from "./MeshObject.ts";
-import {ModelInstance, Scene, Transform} from "./Scene.ts";
 import {Mat4} from "@/math/Mat4.ts";
 import {Vec4} from "@/math/Vec4.ts";
 import {toRadians} from "@/math/Utils.ts";
+import Scene from "@/scene/Scene.ts";
+import ModelInstance from "@/scene/ModelInstance.ts";
+import Triangle from "@/scene/Triangle.ts";
+import Transform from "@/scene/Transform.ts";
 
 export class Application {
     canvas: HTMLCanvasElement;
@@ -685,10 +688,23 @@ export class Application {
             new Vec3(2, 7, 3),
         ]
 
-        const scene = new Scene(vertices, [
-            new ModelInstance(indices, new Transform(new Vec3(0, -2, 12), new Vec3(0, Math.PI / 4, 0), 1), new Vec3(128, 255, 25), "Cube 1"),
-            new ModelInstance(indices, new Transform(new Vec3(0, 2, 12), new Vec3(0, 0, 0),), new Vec3(20, 120, 180), "Cube 2")
-        ])
+        const triangles = indices.map((index) => new Triangle(vertices[index.x], vertices[index.y], vertices[index.z]))
+        const transform1 = new Transform(new Vec3(0, -2, 12), new Vec3(0, Math.PI / 4, 0))
+        const transform2 = new Transform(new Vec3(0, 2, 12), new Vec3(0, 0, 0))
+        const color1 = new Vec3(128, 255, 25)
+        const color2 = new Vec3(20, 120, 180)
+        const mInstance1 = new ModelInstance(triangles, transform1, color1, "Cube 1")
+        const mInstance2 = new ModelInstance(triangles, transform2, color2, "Cube 2")
+
+        const scene = new Scene()
+        scene.instances.push(mInstance1)
+        scene.instances.push(mInstance2)
+
+
+        // const scene = new Scene(vertices, [
+        //     new ModelInstance(indices, new Transform(), new Vec3(128, 255, 25), "Cube 1"),
+        //     new ModelInstance(indices, new Transform(,), new Vec3(20, 120, 180), "Cube 2")
+        // ])
 
         this.renderScene(scene);
     }
@@ -700,8 +716,8 @@ export class Application {
      * @param scene The scene to render.
      */
     renderScene(scene: Scene) {
-        for (const model of scene.instances) {
-            this.renderInstance(scene.vertices, model);
+        for (const instance of scene.instances) {
+            this.renderInstance(instance);
         }
     }
 
@@ -718,10 +734,9 @@ export class Application {
 
     /**
      * Render a single instance from the scene.
-     * @param vertices The whole scene vertices.
      * @param instance Each instance from the scene.
      */
-    renderInstance(vertices: Vec3[], instance: ModelInstance) {
+    renderInstance(instance: ModelInstance) {
 
         // Camera transforms are applied in reverse since when we me the camera to the left
         // the view moves to the right and so on
@@ -739,20 +754,31 @@ export class Application {
         const cameraTransform = cameraTranslation.matMulBin(cameraRotation)
 
 
-        for (const triangle of instance.triangleIndices) {
-            const triangleVerts = []
-            for (const index of [triangle.x, triangle.y, triangle.z]) {
-
-                // const translatedVec = instance.transform.applyAffine(vertices[index])
-                const perspectiveProj = Mat4.persScreenProj(1, 1, 1, this.width, this.height)
-                // TODO: Refactor
-                const camViewMatrix = cameraTransform.matMulBin(instance.transform.transformMat)
-                const newVec = camViewMatrix.vecMul(Vec4.Point3(vertices[index].x, vertices[index].y, vertices[index].z))
-
-
-                triangleVerts.push(perspectiveProj.vecMul(newVec).castVec3().perspDiv())
-            }
-            this.drawTriangle(triangleVerts[0], triangleVerts[1], triangleVerts[2], instance.color);
+        for (const triangle of instance.triangles) {
+            const perspectiveProj = Mat4.persScreenProj(1, 1, 1, this.width, this.height)
+            const camViewMatrix = cameraTransform.matMulBin(instance.transform.transformMat)
+            const t1 = camViewMatrix.vecMul(Vec4.Point3(triangle.v1.x, triangle.v1.y, triangle.v1.z))
+            const t2 = camViewMatrix.vecMul(Vec4.Point3(triangle.v2.x, triangle.v2.y, triangle.v2.z))
+            const t3 = camViewMatrix.vecMul(Vec4.Point3(triangle.v3.x, triangle.v3.y, triangle.v3.z))
+            this.drawTriangle(
+                perspectiveProj.vecMul(t1).castVec3().perspDiv(),
+                perspectiveProj.vecMul(t2).castVec3().perspDiv(),
+                perspectiveProj.vecMul(t3).castVec3().perspDiv(),
+                instance.color
+            )
+            // const triangleVerts = []
+            // for (const index of [triangle.x, triangle.y, triangle.z]) {
+            //
+            //     // const translatedVec = instance.transform.applyAffine(vertices[index])
+            //     const perspectiveProj = Mat4.persScreenProj(1, 1, 1, this.width, this.height)
+            //     // TODO: Refactor
+            //     const camViewMatrix = cameraTransform.matMulBin(instance.transform.transformMat)
+            //     const newVec = camViewMatrix.vecMul(Vec4.Point3(vertices[index].x, vertices[index].y, vertices[index].z))
+            //
+            //
+            //     triangleVerts.push(perspectiveProj.vecMul(newVec).castVec3().perspDiv())
+            // }
+            // this.drawTriangle(triangleVerts[0], triangleVerts[1], triangleVerts[2], instance.color);
         }
     }
 }
