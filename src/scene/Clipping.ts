@@ -15,7 +15,7 @@ export function clipScene(scene: Scene, planes: Plane[]) {
     // and clip it against our frustum planes
     for (const instance of scene.instances) {
         const clippedInstance = clipInstance(instance, planes)
-        if (clippedInstance != null) {
+        if (clippedInstance != null && clippedInstance.triangles.length > 0) {
             newScene.instances.push(clippedInstance)
         }
     }
@@ -40,14 +40,13 @@ function clipInstanceAgainstPlane(instance: ModelInstance, plane: Plane): ModelI
     // Get the signed distance between the bounding sphere and the plane
     const d = signedDistance(plane, instance.boundingSphere.center);
     const r = instance.boundingSphere.radius;
-    console.log(`D: ${d}, R: ${r}`)
     // Check for intersection
-    if (d > r) { // No intersection
+    if (d > r) { // Instance fully inside
         return instance;
-    } else if (d < -r) { // Instance full outside the plane
+    } else if (d < -r) { // Instance fully outside the plane
         return null;
-    } else {
-        const clippedInstance = new ModelInstance()
+    } else { // Partially inside
+        const clippedInstance = new ModelInstance([], instance.transform, instance.color, instance.name)
         clippedInstance.triangles = clipTrianglesAgainstPlane(instance.triangles, plane)
         return clippedInstance;
     }
@@ -115,12 +114,14 @@ export function clipTriangle(triangle: Triangle, plane: Plane): Triangle[] {
 
 function signedDistance(plane: Plane, vertex: Vec3) {
     // d = Ax + By + Cz + D
-    return (vertex.x * plane.normal.x) + (vertex.y * plane.normal.y) + (vertex.z * plane.normal.z) + plane.D
+    return plane.normal.dot(vertex) + plane.D
 }
 
 
 function intersection(v0: Vec3, v1: Vec3, plane: Plane) {
-    const t = (-plane.D - plane.normal.dot(v0)) / (plane.normal.dot(v1) - plane.normal.dot(v1))
+    const d0 = signedDistance(plane, v0)
+    const d1 = signedDistance(plane, v1)
+    const t = d0 / (d0 - d1)
     return new Vec3(
         v0.x + t * (v1.x - v0.x),
         v0.y + t * (v1.y - v0.y),
