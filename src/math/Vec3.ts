@@ -15,6 +15,10 @@ export class Vec3 {
         return new Vec3(value, value, value);
     }
 
+    static zero() {
+        return this.fill(0);
+    }
+
     add(other: Vec3): Vec3 {
         const res = Vec3.fill(0);
         res.x = this.x + other.x;

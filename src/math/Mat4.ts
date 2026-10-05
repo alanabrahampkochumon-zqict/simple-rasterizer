@@ -1,4 +1,5 @@
 import {Vec4} from "./Vec4.ts";
+import {Vec3} from "@/math/Vec3.ts";
 
 export class Mat4 {
     data: number[]
@@ -153,6 +154,25 @@ export class Mat4 {
         resVec.y = this.data[1] * vec.x + this.data[5] * vec.y + this.data[9] * vec.z + this.data[13] * vec.w;
         resVec.z = this.data[2] * vec.x + this.data[6] * vec.y + this.data[10] * vec.z + this.data[14] * vec.w;
         resVec.w = this.data[3] * vec.x + this.data[7] * vec.y + this.data[11] * vec.z + this.data[15] * vec.w;
+
+        return resVec;
+
+    }
+
+    /**
+     * Compute the product of this matrix with a column vector.
+     *
+     * @param vec The vector to multiply.
+     *
+     * @return A new vector transformed by this matrix.
+     * @constructor
+     */
+    vec3Mul(vec: Vec3): Vec3 {
+        const resVec = Vec3.zero()
+
+        resVec.x = this.data[0] * vec.x + this.data[4] * vec.y + this.data[8] * vec.z + this.data[12];
+        resVec.y = this.data[1] * vec.x + this.data[5] * vec.y + this.data[9] * vec.z + this.data[13];
+        resVec.z = this.data[2] * vec.x + this.data[6] * vec.y + this.data[10] * vec.z + this.data[14];
 
         return resVec;
 

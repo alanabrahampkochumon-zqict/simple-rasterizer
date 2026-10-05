@@ -8,6 +8,8 @@ import Scene from "@/scene/Scene.ts";
 import ModelInstance from "@/scene/ModelInstance.ts";
 import Triangle from "@/scene/Triangle.ts";
 import Transform from "@/scene/Transform.ts";
+import {clipInstance, clipScene} from "@/scene/Clipping.ts";
+import {Plane} from "@/scene/Plane.ts";
 
 export class Application {
     canvas: HTMLCanvasElement;
@@ -688,25 +690,29 @@ export class Application {
             new Vec3(2, 7, 3),
         ]
 
-        const triangles = indices.map((index) => new Triangle(vertices[index.x], vertices[index.y], vertices[index.z]))
-        const transform1 = new Transform(new Vec3(0, -2, 12), new Vec3(0, Math.PI / 4, 0))
-        const transform2 = new Transform(new Vec3(0, 2, 12), new Vec3(0, 0, 0))
+        const triangles1 = indices.map((index) => new Triangle(vertices[index.x], vertices[index.y], vertices[index.z]))
+        const triangles2 = indices.map((index) => new Triangle(vertices[index.x], vertices[index.y], vertices[index.z]))
+        const transform1 = new Transform(new Vec3(0, 3, 12), new Vec3(0, Math.PI / 4, 0), Vec3.fill(2))
+        const transform2 = new Transform(new Vec3(0, 2, 12), new Vec3(0, 0, 0), Vec3.fill(2))
         const color1 = new Vec3(128, 255, 25)
         const color2 = new Vec3(20, 120, 180)
-        const mInstance1 = new ModelInstance(triangles, transform1, color1, "Cube 1")
-        const mInstance2 = new ModelInstance(triangles, transform2, color2, "Cube 2")
+        const mInstance1 = new ModelInstance(triangles1, transform1, color1, "Cube 1")
+        const mInstance2 = new ModelInstance(triangles2, transform2, color2, "Cube 2")
 
         const scene = new Scene()
         scene.instances.push(mInstance1)
         scene.instances.push(mInstance2)
 
+        const s2 = 1.0;
+        const clippingPlanes = [
+            new Plane(new Vec3(0, 0, 1), -1), // Near
+            new Plane(new Vec3(s2, 0, s2), 0), // Left
+            new Plane(new Vec3(-s2, 0, s2), 0), // Right
+            new Plane(new Vec3(0, -s2, s2), 0), // Top
+            new Plane(new Vec3(0, s2, s2), 0), // Bottom
+        ]
 
-        // const scene = new Scene(vertices, [
-        //     new ModelInstance(indices, new Transform(), new Vec3(128, 255, 25), "Cube 1"),
-        //     new ModelInstance(indices, new Transform(,), new Vec3(20, 120, 180), "Cube 2")
-        // ])
-
-        this.renderScene(scene);
+        this.renderScene(clipScene(scene, clippingPlanes));
     }
 
 
@@ -752,7 +758,6 @@ export class Application {
         // this.cameraRotationToRadians()
         const cameraRotation = Mat4.rotX(this.camRotation.x).matMulBin(Mat4.rotY(this.camRotation.y).matMulBin(Mat4.rotZ(this.camRotation.z))).transpose()
         const cameraTransform = cameraTranslation.matMulBin(cameraRotation)
-
 
         for (const triangle of instance.triangles) {
             const perspectiveProj = Mat4.persScreenProj(1, 1, 1, this.width, this.height)

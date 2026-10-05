@@ -16,6 +16,7 @@ export default class ModelInstance {
         this.transform = transform
         this.color = color
 
+        this.applyTransform()
         this.boundingSphere = new BoundingSphere()
         this.generateBoundingSphere()
     }
@@ -40,5 +41,14 @@ export default class ModelInstance {
 
         this.boundingSphere.radius = Math.sqrt(radiusSq);
         this.boundingSphere.center = center;
+    }
+
+
+    applyTransform() {
+        for (const triangle of this.triangles) {
+            triangle.v1 = this.transform.transformMat.vec3Mul(triangle.v1)
+            triangle.v2 = this.transform.transformMat.vec3Mul(triangle.v2)
+            triangle.v3 = this.transform.transformMat.vec3Mul(triangle.v3)
+        }
     }
 }

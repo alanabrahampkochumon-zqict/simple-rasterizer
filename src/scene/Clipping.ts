@@ -40,6 +40,7 @@ function clipInstanceAgainstPlane(instance: ModelInstance, plane: Plane): ModelI
     // Get the signed distance between the bounding sphere and the plane
     const d = signedDistance(plane, instance.boundingSphere.center);
     const r = instance.boundingSphere.radius;
+    console.log(`D: ${d}, R: ${r}`)
     // Check for intersection
     if (d > r) { // No intersection
         return instance;
@@ -53,7 +54,7 @@ function clipInstanceAgainstPlane(instance: ModelInstance, plane: Plane): ModelI
 }
 
 
-function clipTrianglesAgainstPlane(triangles: Triangle[], plane: Plane): Triangle[] {
+export function clipTrianglesAgainstPlane(triangles: Triangle[], plane: Plane): Triangle[] {
     // Clip each triangle against the given plane.
     let clippedTriangles: Triangle[] = []
     for (const triangle of triangles) {
@@ -63,14 +64,13 @@ function clipTrianglesAgainstPlane(triangles: Triangle[], plane: Plane): Triangl
 }
 
 
-function clipTriangle(triangle: Triangle, plane: Plane): Triangle[] {
+export function clipTriangle(triangle: Triangle, plane: Plane): Triangle[] {
     const d1 = signedDistance(plane, triangle.v1)
     const d2 = signedDistance(plane, triangle.v2)
     const d3 = signedDistance(plane, triangle.v3)
 
     // Filter out the positive distance
     // This can be used to determine which points are inside or outside the clipping plane.
-
     const insideVerts: Vec3[] = []
     const outsideVerts: Vec3[] = []
     if (d1 > 0) {
